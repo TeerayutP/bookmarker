@@ -40,6 +40,9 @@ export default function CategoryListPage() {
             </p>
           )}
         </div>
+        <Button as={Link} to="/categories/new" color="secondary" variant="flat" size="sm">
+          + Add Category
+        </Button>
       </div>
 
       {items.length === 0 ? (

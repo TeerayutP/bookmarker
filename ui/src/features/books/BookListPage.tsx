@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Tabs, Tab, Input, Card, CardBody, Chip, Progress, Spinner } from '@heroui/react'
+import { Tabs, Tab, Input, Card, CardBody, Chip, Progress, Spinner, Button, ButtonGroup } from '@heroui/react'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { fetchBooks, setFilter, BookStatus } from './booksSlice'
 import { fetchAuthors } from '../authors/authorsSlice'
@@ -28,7 +28,9 @@ const STATUS_LABEL: Record<BookStatus, string> = {
   dropped: 'Dropped',
 }
 
-function CoverPlaceholder({ title }: { title: string }) {
+type ViewMode = 'grid' | 'list'
+
+function CoverPlaceholder({ title, size = 'lg' }: { title: string; size?: 'sm' | 'lg' }) {
   const colors = [
     'from-violet-400 to-purple-600',
     'from-blue-400 to-cyan-600',
@@ -39,11 +41,25 @@ function CoverPlaceholder({ title }: { title: string }) {
   const color = colors[title.charCodeAt(0) % colors.length]
   return (
     <div className={`w-full h-full bg-gradient-to-br ${color} flex items-center justify-center`}>
-      <span className="text-white text-4xl font-bold opacity-80 select-none">
+      <span className={`text-white font-bold opacity-80 select-none ${size === 'sm' ? 'text-lg' : 'text-4xl'}`}>
         {title.charAt(0).toUpperCase()}
       </span>
     </div>
   )
+}
+
+function AuthorLink({ authorName, authors }: { authorName: string; authors: { id: number; name: string }[] }) {
+  const a = authors.find(a => a.name.toLowerCase() === authorName.toLowerCase())
+  if (a) return (
+    <Link
+      to={`/authors/${a.id}`}
+      className="hover:text-violet-600 hover:underline transition-colors"
+      onClick={e => e.stopPropagation()}
+    >
+      {authorName}
+    </Link>
+  )
+  return <span>{authorName}</span>
 }
 
 export default function BookListPage() {
@@ -51,6 +67,14 @@ export default function BookListPage() {
   const { items, loading, error, filter } = useAppSelector(s => s.books)
   const authors = useAppSelector(s => s.authors.items)
   const [search, setSearch] = useState('')
+  const [view, setView] = useState<ViewMode>(() =>
+    (localStorage.getItem('bookListView') as ViewMode) ?? 'grid'
+  )
+
+  const setViewMode = (v: ViewMode) => {
+    setView(v)
+    localStorage.setItem('bookListView', v)
+  }
 
   useEffect(() => {
     dispatch(fetchBooks())
@@ -99,17 +123,52 @@ export default function BookListPage() {
         >
           {STATUS_TABS.map(t => <Tab key={t.key} title={t.label} />)}
         </Tabs>
-        <Input
-          placeholder="Search title or author…"
-          value={search}
-          onValueChange={setSearch}
-          className="max-w-xs"
-          isClearable
-          onClear={() => setSearch('')}
-          variant="bordered"
-          size="sm"
-          startContent={<span className="text-default-400 text-sm">🔍</span>}
-        />
+
+        <div className="flex gap-2 items-center">
+          <Input
+            placeholder="Search title or author…"
+            value={search}
+            onValueChange={setSearch}
+            className="max-w-xs"
+            isClearable
+            onClear={() => setSearch('')}
+            variant="bordered"
+            size="sm"
+            startContent={<span className="text-default-400 text-sm">🔍</span>}
+          />
+
+          <ButtonGroup size="sm" variant="flat">
+            <Button
+              isIconOnly
+              color={view === 'grid' ? 'secondary' : 'default'}
+              onPress={() => setViewMode('grid')}
+              aria-label="Grid view"
+            >
+              <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor">
+                <rect x="1" y="1" width="5.5" height="5.5" rx="1"/>
+                <rect x="8.5" y="1" width="5.5" height="5.5" rx="1"/>
+                <rect x="1" y="8.5" width="5.5" height="5.5" rx="1"/>
+                <rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1"/>
+              </svg>
+            </Button>
+            <Button
+              isIconOnly
+              color={view === 'list' ? 'secondary' : 'default'}
+              onPress={() => setViewMode('list')}
+              aria-label="List view"
+            >
+              <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor">
+                <rect x="1" y="2" width="13" height="2" rx="1"/>
+                <rect x="1" y="6.5" width="13" height="2" rx="1"/>
+                <rect x="1" y="11" width="13" height="2" rx="1"/>
+              </svg>
+            </Button>
+          </ButtonGroup>
+
+          <Button as={Link} to="/books/new" color="secondary" variant="flat" size="sm" className="shrink-0">
+            + Add Book
+          </Button>
+        </div>
       </div>
 
       {visible.length === 0 ? (
@@ -118,15 +177,11 @@ export default function BookListPage() {
           <p className="text-default-400 font-medium">No books found.</p>
           <p className="text-default-300 text-sm">Try a different filter or add a new book.</p>
         </div>
-      ) : (
+      ) : view === 'grid' ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {visible.map(book => (
             <Link key={book.id} to={`/books/${book.id}`} className="group block">
-              <Card
-                isPressable
-                isBlurred
-                className="h-full border border-white/40 shadow-sm group-hover:shadow-md transition-shadow"
-              >
+              <Card isPressable isBlurred className="h-full border border-white/40 shadow-sm group-hover:shadow-md transition-shadow">
                 <CardBody className="p-0 overflow-hidden">
                   <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-xl">
                     {resolveImg(book.cover_url) ? (
@@ -145,24 +200,12 @@ export default function BookListPage() {
                       </Chip>
                     </div>
                   </div>
-
                   <div className="p-3 space-y-2">
                     <div>
                       <p className="font-semibold text-sm line-clamp-2 leading-tight">{book.title}</p>
-                      {(() => {
-                        const a = authors.find(a => a.name.toLowerCase() === book.author.toLowerCase())
-                        return a ? (
-                          <Link
-                            to={`/authors/${a.id}`}
-                            className="text-xs text-default-400 mt-0.5 line-clamp-1 hover:text-violet-600 hover:underline transition-colors"
-                            onClick={e => e.stopPropagation()}
-                          >
-                            {book.author}
-                          </Link>
-                        ) : (
-                          <p className="text-xs text-default-400 mt-0.5 line-clamp-1">{book.author}</p>
-                        )
-                      })()}
+                      <p className="text-xs text-default-400 mt-0.5 line-clamp-1">
+                        <AuthorLink authorName={book.author} authors={authors} />
+                      </p>
                     </div>
                     <div className="space-y-1">
                       <div className="flex justify-between text-[11px] text-default-400">
@@ -170,12 +213,7 @@ export default function BookListPage() {
                         {book.total_chapters && <span>{Math.round((book.current_chapter / book.total_chapters) * 100)}%</span>}
                       </div>
                       {book.total_chapters && (
-                        <Progress
-                          size="sm"
-                          value={(book.current_chapter / book.total_chapters) * 100}
-                          color={STATUS_COLOR[book.status]}
-                          aria-label="Progress"
-                        />
+                        <Progress size="sm" value={(book.current_chapter / book.total_chapters) * 100} color={STATUS_COLOR[book.status]} aria-label="Progress" />
                       )}
                     </div>
                   </div>
@@ -183,6 +221,77 @@ export default function BookListPage() {
               </Card>
             </Link>
           ))}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {visible.map(book => {
+            const progress = book.total_chapters
+              ? Math.round((book.current_chapter / book.total_chapters) * 100)
+              : null
+            return (
+              <Link key={book.id} to={`/books/${book.id}`} className="group block">
+                <Card isBlurred className="border border-white/40 shadow-sm group-hover:shadow-md transition-shadow">
+                  <CardBody className="p-4">
+                    <div className="flex gap-4">
+                      {/* Cover */}
+                      <div className="w-14 h-20 rounded-lg overflow-hidden shrink-0 shadow-sm">
+                        {resolveImg(book.cover_url) ? (
+                          <img
+                            src={resolveImg(book.cover_url)!}
+                            alt={book.title}
+                            className="w-full h-full object-cover"
+                            onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                          />
+                        ) : (
+                          <CoverPlaceholder title={book.title} size="sm" />
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-default-900 leading-tight line-clamp-1">{book.title}</p>
+                            <p className="text-xs text-default-400 mt-0.5">
+                              <AuthorLink authorName={book.author} authors={authors} />
+                            </p>
+                          </div>
+                          <Chip size="sm" color={STATUS_COLOR[book.status]} variant="flat" className="shrink-0 text-[10px]">
+                            {STATUS_LABEL[book.status]}
+                          </Chip>
+                        </div>
+
+                        {book.notes && (
+                          <p className="text-xs text-default-500 line-clamp-2 leading-relaxed italic">
+                            "{book.notes}"
+                          </p>
+                        )}
+
+                        <div className="flex items-center gap-3">
+                          {book.total_chapters ? (
+                            <>
+                              <Progress
+                                size="sm"
+                                value={(book.current_chapter / book.total_chapters) * 100}
+                                color={STATUS_COLOR[book.status]}
+                                aria-label="Progress"
+                                className="flex-1"
+                              />
+                              <span className="text-[11px] text-default-400 shrink-0">
+                                Ch. {book.current_chapter} / {book.total_chapters} · {progress}%
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-[11px] text-default-400">Ch. {book.current_chapter}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardBody>
+                </Card>
+              </Link>
+            )
+          })}
         </div>
       )}
 

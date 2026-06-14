@@ -9,21 +9,11 @@ const NAV_LINKS = [
   { to: '/categories', label: 'Categories', match: (p: string) => p.startsWith('/categories') },
 ]
 
-const ADD_LINK: Record<string, string> = {
-  '/': '/books/new',
-  '/authors': '/authors/new',
-  '/categories': '/categories/new',
-}
-
 export default function Layout() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const user = useAppSelector((s) => s.auth.user)
-
-  const addHref = Object.entries(ADD_LINK).find(([prefix]) =>
-    prefix === '/' ? pathname === '/' || pathname.startsWith('/books') : pathname.startsWith(prefix)
-  )?.[1] ?? '/books/new'
 
   const handleLogout = () => {
     dispatch(logout())
@@ -50,14 +40,6 @@ export default function Layout() {
               </Link>
             </NavbarItem>
           ))}
-          <NavbarItem>
-            <span className="mx-1 text-default-200">|</span>
-          </NavbarItem>
-          <NavbarItem>
-            <Button as={Link} to={addHref} color="secondary" variant="flat" size="sm" className="font-medium">
-              + Add
-            </Button>
-          </NavbarItem>
         </NavbarContent>
 
         <NavbarContent justify="end" className="gap-3">

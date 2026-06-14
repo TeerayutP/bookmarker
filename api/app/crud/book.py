@@ -7,7 +7,7 @@ def get_all(db: Session, status: BookStatus | None = None) -> list[Book]:
     q = db.query(Book)
     if status:
         q = q.filter(Book.status == status)
-    return q.order_by(Book.created_at.desc()).all()
+    return q.order_by(Book.updated_at.desc()).all()
 
 def get(db: Session, book_id: int) -> Book | None:
     return db.query(Book).filter(Book.id == book_id).first()

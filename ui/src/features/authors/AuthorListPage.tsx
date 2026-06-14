@@ -43,6 +43,9 @@ export default function AuthorListPage() {
           <h1 className="text-2xl font-bold text-default-900">Authors</h1>
           {items.length > 0 && <p className="text-sm text-default-400 mt-0.5">{items.length} author{items.length !== 1 ? 's' : ''}</p>}
         </div>
+        <Button as={Link} to="/authors/new" color="secondary" variant="flat" size="sm">
+          + Add Author
+        </Button>
       </div>
 
       {items.length === 0 ? (
