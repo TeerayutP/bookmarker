@@ -11,6 +11,7 @@ export interface Book {
   current_chapter: number
   status: BookStatus
   cover_url: string | null
+  synopsis: string | null
   notes: string | null
   category_id: number | null
   created_at: string
@@ -24,6 +25,7 @@ export interface BookCreate {
   current_chapter?: number
   status?: BookStatus
   cover_url?: string | null
+  synopsis?: string | null
   notes?: string | null
   category_id?: number | null
   category_name?: string | null

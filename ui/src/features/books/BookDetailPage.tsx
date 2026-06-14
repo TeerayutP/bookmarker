@@ -57,6 +57,7 @@ export default function BookDetailPage() {
   const [totalChapters, setTotalChapters] = useState('')
   const [status, setStatus] = useState<BookStatus>('reading')
   const [coverUrl, setCoverUrl] = useState('')
+  const [synopsis, setSynopsis] = useState('')
   const [notes, setNotes] = useState('')
   const [categoryInput, setCategoryInput] = useState('')
   const [saving, setSaving] = useState(false)
@@ -77,6 +78,7 @@ export default function BookDetailPage() {
       setTotalChapters(book.total_chapters?.toString() ?? '')
       setStatus(book.status)
       setCoverUrl(book.cover_url ?? '')
+      setSynopsis(book.synopsis ?? '')
       setNotes(book.notes ?? '')
       const cat = categories.find(c => c.id === book.category_id)
       setCategoryInput(cat?.name ?? '')
@@ -90,7 +92,7 @@ export default function BookDetailPage() {
     try {
       await dispatch(updateBook({
         id: book.id,
-        data: { title, author, total_chapters: totalChapters ? Number(totalChapters) : null, status, cover_url: coverUrl || null, notes: notes || null, category_name: categoryInput || null },
+        data: { title, author, total_chapters: totalChapters ? Number(totalChapters) : null, status, cover_url: coverUrl || null, synopsis: synopsis || null, notes: notes || null, category_name: categoryInput || null },
       })).unwrap()
       setEditing(false)
     } finally { setSaving(false) }
@@ -161,6 +163,14 @@ export default function BookDetailPage() {
                   <img src={resolveImg(coverUrl)!} alt="preview" className="w-full h-full object-cover" />
                 </div>
               )}
+              <Textarea
+                label="Synopsis"
+                value={synopsis}
+                onValueChange={setSynopsis}
+                placeholder="Brief description… (optional)"
+                variant="bordered"
+                minRows={3}
+              />
               <Textarea label="Notes" value={notes} onValueChange={setNotes} variant="bordered" minRows={3} />
               <div className="flex gap-2 justify-end pt-2">
                 <Button variant="flat" onPress={() => setEditing(false)}>Cancel</Button>
@@ -241,6 +251,16 @@ export default function BookDetailPage() {
                     </div>
                   )}
                 </div>
+
+                {book.synopsis && (
+                  <>
+                    <Divider />
+                    <div>
+                      <p className="text-xs font-semibold text-default-500 uppercase tracking-wide mb-1">Synopsis</p>
+                      <p className="text-sm text-default-700 leading-relaxed whitespace-pre-wrap">{book.synopsis}</p>
+                    </div>
+                  </>
+                )}
 
                 {book.notes && (
                   <>

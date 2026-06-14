@@ -10,6 +10,7 @@ class BookCreate(BaseModel):
     status: BookStatus = BookStatus.reading
     cover_url: str | None = None
     notes: str | None = None
+    synopsis: str | None = None
     category_id: int | None = None
     category_name: str | None = None
 
@@ -21,6 +22,7 @@ class BookUpdate(BaseModel):
     status: BookStatus | None = None
     cover_url: str | None = None
     notes: str | None = None
+    synopsis: str | None = None
     category_id: int | None = None
     category_name: str | None = None
 
@@ -36,6 +38,7 @@ class BookOut(BaseModel):
     status: BookStatus
     cover_url: str | None
     notes: str | None
+    synopsis: str | None
     category_id: int | None
     created_at: datetime
     updated_at: datetime

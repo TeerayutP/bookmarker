@@ -21,6 +21,7 @@ class Book(Base):
     status: Mapped[BookStatus] = mapped_column(Enum(BookStatus), default=BookStatus.reading, nullable=False)
     cover_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    synopsis: Mapped[str | None] = mapped_column(Text, nullable=True)
     category_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("categories.id", ondelete="SET NULL"), nullable=True)
     category: Mapped["Category | None"] = relationship("Category")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

@@ -28,6 +28,7 @@ export default function AddBookPage() {
   const [currentChapter, setCurrentChapter] = useState('0')
   const [status, setStatus] = useState<BookStatus>('reading')
   const [coverUrl, setCoverUrl] = useState('')
+  const [synopsis, setSynopsis] = useState('')
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
   const { open: openFilePicker, uploading, fetching, fetchFromUrl, Input: FileInput } = useCoverUpload(setCoverUrl)
@@ -48,6 +49,7 @@ export default function AddBookPage() {
         current_chapter: Number(currentChapter),
         status,
         cover_url: coverUrl || null,
+        synopsis: synopsis || null,
         notes: notes || null,
         category_name: categoryInput || null,
       })).unwrap()
@@ -175,6 +177,14 @@ export default function AddBookPage() {
                   </Button>
                 </div>
 
+                <Textarea
+                  label="Synopsis"
+                  value={synopsis}
+                  onValueChange={setSynopsis}
+                  placeholder="Brief description of the book… (optional)"
+                  variant="bordered"
+                  minRows={3}
+                />
                 <Textarea
                   label="Notes"
                   value={notes}
