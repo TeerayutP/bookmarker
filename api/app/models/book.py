@@ -1,7 +1,7 @@
 import enum
 from datetime import datetime
-from sqlalchemy import String, Integer, Text, Enum, DateTime
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Integer, Text, Enum, DateTime, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ..database import Base
 
 class BookStatus(str, enum.Enum):
@@ -21,5 +21,7 @@ class Book(Base):
     status: Mapped[BookStatus] = mapped_column(Enum(BookStatus), default=BookStatus.reading, nullable=False)
     cover_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    category_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("categories.id", ondelete="SET NULL"), nullable=True)
+    category: Mapped["Category | None"] = relationship("Category")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

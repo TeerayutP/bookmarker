@@ -17,3 +17,4 @@ ui/dist/
 bookmarker/
 screenshot*.png
 package-lock.json
+api/uploads/

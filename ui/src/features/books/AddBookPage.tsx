@@ -1,8 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Input, Select, SelectItem, Textarea, Button, Card, CardBody } from '@heroui/react'
-import { useAppDispatch } from '../../store/hooks'
+import { Input, Select, SelectItem, Textarea, Button, Card, CardBody, Autocomplete, AutocompleteItem } from '@heroui/react'
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { createBook, BookStatus } from './booksSlice'
+import { resolveImg } from '../../lib/imageUrl'
+import { fetchAuthors } from '../authors/authorsSlice'
+import { fetchCategories } from '../categories/categoriesSlice'
 
 const STATUS_OPTIONS: { key: BookStatus; label: string }[] = [
   { key: 'reading', label: 'Reading' },
@@ -14,14 +17,23 @@ const STATUS_OPTIONS: { key: BookStatus; label: string }[] = [
 export default function AddBookPage() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  const authors = useAppSelector(s => s.authors.items)
+  const categories = useAppSelector(s => s.categories.items)
+
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
+  const [categoryInput, setCategoryInput] = useState('')
   const [totalChapters, setTotalChapters] = useState('')
   const [currentChapter, setCurrentChapter] = useState('0')
   const [status, setStatus] = useState<BookStatus>('reading')
   const [coverUrl, setCoverUrl] = useState('')
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    dispatch(fetchAuthors())
+    dispatch(fetchCategories())
+  }, [dispatch])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,6 +47,7 @@ export default function AddBookPage() {
         status,
         cover_url: coverUrl || null,
         notes: notes || null,
+        category_name: categoryInput || null,
       })).unwrap()
       navigate('/')
     } finally {
@@ -55,8 +68,8 @@ export default function AddBookPage() {
             <div className="flex gap-6">
               <div className="flex flex-col items-center gap-3 shrink-0">
                 <div className="w-28 aspect-[3/4] rounded-xl overflow-hidden border-2 border-dashed border-default-200 bg-default-50 flex items-center justify-center">
-                  {coverUrl ? (
-                    <img src={coverUrl} alt="Cover preview" className="w-full h-full object-cover" />
+                  {resolveImg(coverUrl) ? (
+                    <img src={resolveImg(coverUrl)!} alt="Cover preview" className="w-full h-full object-cover" />
                   ) : (
                     <div className="text-center p-2">
                       <p className="text-3xl">📖</p>
@@ -68,8 +81,43 @@ export default function AddBookPage() {
               </div>
 
               <div className="flex-1 space-y-4 min-w-0">
-                <Input label="Title" value={title} onValueChange={setTitle} isRequired variant="bordered" placeholder="Book title" />
-                <Input label="Author" value={author} onValueChange={setAuthor} isRequired variant="bordered" placeholder="Author name" />
+                <Input
+                  label="Title"
+                  value={title}
+                  onValueChange={setTitle}
+                  isRequired
+                  variant="bordered"
+                  placeholder="Book title"
+                />
+
+                <Autocomplete
+                  label="Author"
+                  inputValue={author}
+                  onInputChange={setAuthor}
+                  allowsCustomValue
+                  variant="bordered"
+                  isRequired
+                  placeholder="Author name"
+                  description={author && !authors.find(a => a.name.toLowerCase() === author.toLowerCase()) ? 'New author — will be created automatically' : undefined}
+                >
+                  {authors.map(a => (
+                    <AutocompleteItem key={a.name}>{a.name}</AutocompleteItem>
+                  ))}
+                </Autocomplete>
+
+                <Autocomplete
+                  label="Category"
+                  inputValue={categoryInput}
+                  onInputChange={setCategoryInput}
+                  allowsCustomValue
+                  variant="bordered"
+                  placeholder="e.g. Fantasy (optional)"
+                  description={categoryInput && !categories.find(c => c.name.toLowerCase() === categoryInput.toLowerCase()) ? 'New category — will be created automatically' : undefined}
+                >
+                  {categories.map(c => (
+                    <AutocompleteItem key={c.name}>{c.name}</AutocompleteItem>
+                  ))}
+                </Autocomplete>
 
                 <div className="grid grid-cols-2 gap-3">
                   <Input
@@ -112,7 +160,7 @@ export default function AddBookPage() {
                   label="Notes"
                   value={notes}
                   onValueChange={setNotes}
-                  placeholder="Any thoughts, bookmarks, spoilers… (optional)"
+                  placeholder="Any thoughts, bookmarks… (optional)"
                   variant="bordered"
                   minRows={3}
                 />

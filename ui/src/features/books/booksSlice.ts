@@ -12,6 +12,7 @@ export interface Book {
   status: BookStatus
   cover_url: string | null
   notes: string | null
+  category_id: number | null
   created_at: string
   updated_at: string
 }
@@ -24,6 +25,8 @@ export interface BookCreate {
   status?: BookStatus
   cover_url?: string | null
   notes?: string | null
+  category_id?: number | null
+  category_name?: string | null
 }
 
 export interface BookUpdate extends Partial<BookCreate> {}

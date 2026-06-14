@@ -6,6 +6,7 @@ import AddBookPage from '../features/books/AddBookPage'
 import BookDetailPage from '../features/books/BookDetailPage'
 import AuthorListPage from '../features/authors/AuthorListPage'
 import AuthorFormPage from '../features/authors/AuthorFormPage'
+import AuthorDetailPage from '../features/authors/AuthorDetailPage'
 import CategoryListPage from '../features/categories/CategoryListPage'
 import CategoryFormPage from '../features/categories/CategoryFormPage'
 import LoginPage from '../features/auth/LoginPage'
@@ -27,7 +28,7 @@ export const router = createBrowserRouter([
       { path: 'books/:id', element: <BookDetailPage /> },
       { path: 'authors', element: <AuthorListPage /> },
       { path: 'authors/new', element: <AuthorFormPage /> },
-      { path: 'authors/:id', element: <AuthorFormPage /> },
+      { path: 'authors/:id', element: <AuthorDetailPage /> },
       { path: 'categories', element: <CategoryListPage /> },
       { path: 'categories/new', element: <CategoryFormPage /> },
       { path: 'categories/:id', element: <CategoryFormPage /> },

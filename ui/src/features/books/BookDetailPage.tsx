@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { Input, Select, SelectItem, Textarea, Button, Card, CardBody, Progress, Chip, Divider } from '@heroui/react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import { Input, Select, SelectItem, Textarea, Button, Card, CardBody, Progress, Chip, Divider, Autocomplete, AutocompleteItem } from '@heroui/react'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { fetchBooks, updateBook, patchChapter, deleteBook, BookStatus } from './booksSlice'
+import { resolveImg } from '../../lib/imageUrl'
+import { fetchCategories } from '../categories/categoriesSlice'
+import { fetchAuthors } from '../authors/authorsSlice'
 
 const STATUS_OPTIONS: { key: BookStatus; label: string }[] = [
   { key: 'reading', label: 'Reading' },
@@ -42,6 +45,10 @@ export default function BookDetailPage() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const book = useAppSelector(s => s.books.items.find(b => b.id === Number(id)))
+  const categories = useAppSelector(s => s.categories.items)
+  const authorRecord = useAppSelector(s =>
+    s.authors.items.find(a => a.name.toLowerCase() === (book?.author ?? '').toLowerCase())
+  )
 
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState('')
@@ -50,10 +57,16 @@ export default function BookDetailPage() {
   const [status, setStatus] = useState<BookStatus>('reading')
   const [coverUrl, setCoverUrl] = useState('')
   const [notes, setNotes] = useState('')
+  const [categoryInput, setCategoryInput] = useState('')
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
-  useEffect(() => { if (!book) dispatch(fetchBooks()) }, [book, dispatch])
+  useEffect(() => {
+    if (!book) dispatch(fetchBooks())
+    dispatch(fetchCategories())
+    dispatch(fetchAuthors())
+  }, [book, dispatch])
+
   useEffect(() => {
     if (book) {
       setTitle(book.title)
@@ -62,8 +75,10 @@ export default function BookDetailPage() {
       setStatus(book.status)
       setCoverUrl(book.cover_url ?? '')
       setNotes(book.notes ?? '')
+      const cat = categories.find(c => c.id === book.category_id)
+      setCategoryInput(cat?.name ?? '')
     }
-  }, [book])
+  }, [book, categories])
 
   if (!book) return <p className="text-center py-20 text-default-400">Loading…</p>
 
@@ -72,7 +87,7 @@ export default function BookDetailPage() {
     try {
       await dispatch(updateBook({
         id: book.id,
-        data: { title, author, total_chapters: totalChapters ? Number(totalChapters) : null, status, cover_url: coverUrl || null, notes: notes || null },
+        data: { title, author, total_chapters: totalChapters ? Number(totalChapters) : null, status, cover_url: coverUrl || null, notes: notes || null, category_name: categoryInput || null },
       })).unwrap()
       setEditing(false)
     } finally { setSaving(false) }
@@ -107,10 +122,23 @@ export default function BookDetailPage() {
                   {STATUS_OPTIONS.map(o => <SelectItem key={o.key}>{o.label}</SelectItem>)}
                 </Select>
               </div>
+              <Autocomplete
+                label="Category"
+                inputValue={categoryInput}
+                onInputChange={setCategoryInput}
+                allowsCustomValue
+                variant="bordered"
+                placeholder="optional"
+                description={categoryInput && !categories.find(c => c.name.toLowerCase() === categoryInput.toLowerCase()) ? 'New category — will be created automatically' : undefined}
+              >
+                {categories.map(c => (
+                  <AutocompleteItem key={c.name}>{c.name}</AutocompleteItem>
+                ))}
+              </Autocomplete>
               <Input label="Cover URL" value={coverUrl} onValueChange={setCoverUrl} placeholder="optional" variant="bordered" />
-              {coverUrl && (
+              {resolveImg(coverUrl) && (
                 <div className="aspect-[3/4] w-24 rounded-lg overflow-hidden border border-default-200">
-                  <img src={coverUrl} alt="preview" className="w-full h-full object-cover" />
+                  <img src={resolveImg(coverUrl)!} alt="preview" className="w-full h-full object-cover" />
                 </div>
               )}
               <Textarea label="Notes" value={notes} onValueChange={setNotes} variant="bordered" minRows={3} />
@@ -123,8 +151,8 @@ export default function BookDetailPage() {
             <div className="flex gap-0">
               <div className="w-36 shrink-0 p-4">
                 <div className="aspect-[3/4] w-full rounded-xl overflow-hidden shadow-md">
-                  {book.cover_url ? (
-                    <img src={book.cover_url} alt={book.title} className="w-full h-full object-cover" />
+                  {resolveImg(book.cover_url) ? (
+                    <img src={resolveImg(book.cover_url)!} alt={book.title} className="w-full h-full object-cover" />
                   ) : (
                     <CoverPlaceholder title={book.title} />
                   )}
@@ -135,11 +163,24 @@ export default function BookDetailPage() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <h1 className="text-xl font-bold text-default-900 leading-tight">{book.title}</h1>
-                    <p className="text-default-500 text-sm mt-0.5">{book.author}</p>
+                    {authorRecord ? (
+                      <Link to={`/authors/${authorRecord.id}`} className="text-default-500 text-sm mt-0.5 hover:text-violet-600 hover:underline transition-colors">
+                        {book.author}
+                      </Link>
+                    ) : (
+                      <p className="text-default-500 text-sm mt-0.5">{book.author}</p>
+                    )}
                   </div>
-                  <Chip size="sm" color={STATUS_COLOR[book.status]} variant="flat" className="shrink-0">
-                    {STATUS_LABEL[book.status]}
-                  </Chip>
+                  <div className="flex flex-col gap-1 items-end shrink-0">
+                    <Chip size="sm" color={STATUS_COLOR[book.status]} variant="flat">
+                      {STATUS_LABEL[book.status]}
+                    </Chip>
+                    {book.category_id && categories.find(c => c.id === book.category_id) && (
+                      <Chip size="sm" variant="flat" color="default" className="text-default-500">
+                        {categories.find(c => c.id === book.category_id)!.name}
+                      </Chip>
+                    )}
+                  </div>
                 </div>
 
                 <Divider />

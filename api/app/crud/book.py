@@ -13,14 +13,14 @@ def get(db: Session, book_id: int) -> Book | None:
     return db.query(Book).filter(Book.id == book_id).first()
 
 def create(db: Session, data: BookCreate) -> Book:
-    book = Book(**data.model_dump())
+    book = Book(**data.model_dump(exclude={'category_name'}))
     db.add(book)
     db.commit()
     db.refresh(book)
     return book
 
 def update(db: Session, book: Book, data: BookUpdate) -> Book:
-    for field, value in data.model_dump(exclude_unset=True).items():
+    for field, value in data.model_dump(exclude_unset=True, exclude={'category_name'}).items():
         setattr(book, field, value)
     book.updated_at = datetime.utcnow()
     db.commit()

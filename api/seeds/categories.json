@@ -1,0 +1,7 @@
+[
+  { "name": "Fantasy",           "slug": "fantasy" },
+  { "name": "Science Fiction",   "slug": "science-fiction" },
+  { "name": "Dystopian",         "slug": "dystopian" },
+  { "name": "Classic Literature","slug": "classic-literature" },
+  { "name": "Young Adult",       "slug": "young-adult" }
+]

@@ -1,0 +1,102 @@
+[
+  {
+    "title": "The Name of the Wind",
+    "author": "Patrick Rothfuss",
+    "category_name": "Fantasy",
+    "total_chapters": 92,
+    "current_chapter": 47,
+    "status": "reading",
+    "cover_src": "https://covers.openlibrary.org/b/id/8353533-L.jpg",
+    "notes": "Kvothe's story is gripping. The magic system is one of a kind."
+  },
+  {
+    "title": "Dune",
+    "author": "Frank Herbert",
+    "category_name": "Science Fiction",
+    "total_chapters": 48,
+    "current_chapter": 48,
+    "status": "completed",
+    "cover_src": "https://covers.openlibrary.org/b/id/8231856-L.jpg",
+    "notes": "A masterpiece of world-building. The politics and ecology are unmatched."
+  },
+  {
+    "title": "The Way of Kings",
+    "author": "Brandon Sanderson",
+    "category_name": "Fantasy",
+    "total_chapters": 75,
+    "current_chapter": 23,
+    "status": "reading",
+    "cover_src": "https://covers.openlibrary.org/b/id/8235528-L.jpg",
+    "notes": "Stormlight Archive is epic. Kaladin's arc is incredible."
+  },
+  {
+    "title": "1984",
+    "author": "George Orwell",
+    "category_name": "Dystopian",
+    "total_chapters": 23,
+    "current_chapter": 23,
+    "status": "completed",
+    "cover_src": "https://covers.openlibrary.org/b/id/8575708-L.jpg",
+    "notes": "Chilling and still relevant. Room 101 is haunting."
+  },
+  {
+    "title": "The Hitchhiker's Guide to the Galaxy",
+    "author": "Douglas Adams",
+    "category_name": "Science Fiction",
+    "total_chapters": 35,
+    "current_chapter": 12,
+    "status": "on_hold",
+    "cover_src": "https://covers.openlibrary.org/b/id/8406786-L.jpg",
+    "notes": "Hilariously absurd. Put on hold but will definitely return."
+  },
+  {
+    "title": "Harry Potter and the Philosopher's Stone",
+    "author": "J.K. Rowling",
+    "category_name": "Young Adult",
+    "total_chapters": 17,
+    "current_chapter": 17,
+    "status": "completed",
+    "cover_src": "https://covers.openlibrary.org/b/id/8228691-L.jpg",
+    "notes": "A classic. Re-read for the nostalgia."
+  },
+  {
+    "title": "Mistborn: The Final Empire",
+    "author": "Brandon Sanderson",
+    "category_name": "Fantasy",
+    "total_chapters": 38,
+    "current_chapter": 10,
+    "status": "reading",
+    "cover_src": "https://covers.openlibrary.org/b/id/8235523-L.jpg",
+    "notes": "The allomancy system is brilliant. Vin is a great protagonist."
+  },
+  {
+    "title": "Project Hail Mary",
+    "author": "Andy Weir",
+    "category_name": "Science Fiction",
+    "total_chapters": 30,
+    "current_chapter": 30,
+    "status": "completed",
+    "cover_src": "https://covers.openlibrary.org/b/id/10527856-L.jpg",
+    "notes": "Best sci-fi I've read in years. Rocky is unforgettable."
+  },
+  {
+    "title": "The Lord of the Rings: The Fellowship of the Ring",
+    "author": "J.R.R. Tolkien",
+    "category_name": "Fantasy",
+    "total_chapters": 22,
+    "current_chapter": 6,
+    "status": "on_hold",
+    "cover_src": "https://covers.openlibrary.org/b/id/8406582-L.jpg",
+    "notes": "Dense but rewarding. Need to get back to this."
+  },
+  {
+    "title": "The Great Gatsby",
+    "author": "F. Scott Fitzgerald",
+    "category_name": "Classic Literature",
+    "total_chapters": 9,
+    "current_chapter": 9,
+    "status": "completed",
+    "cover_src": "https://covers.openlibrary.org/b/id/8432047-L.jpg",
+    "notes": "Short but beautifully written. The green light symbolism is iconic."
+  }
+]

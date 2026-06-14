@@ -2,6 +2,21 @@ from sqlalchemy.orm import Session
 from ..models.category import Category
 from ..schemas.category import CategoryCreate, CategoryUpdate
 
+def _to_slug(name: str) -> str:
+    import re
+    return re.sub(r'[^a-z0-9-]', '', name.lower().replace(' ', '-'))
+
+def find_or_create(db: Session, name: str) -> Category:
+    existing = db.query(Category).filter(Category.name.ilike(name)).first()
+    if existing:
+        return existing
+    slug = _to_slug(name)
+    # ensure slug uniqueness
+    base, i = slug, 1
+    while db.query(Category).filter(Category.slug == slug).first():
+        slug = f"{base}-{i}"; i += 1
+    return create(db, CategoryCreate(name=name, slug=slug))
+
 def get_all(db: Session) -> list[Category]:
     return db.query(Category).order_by(Category.name).all()
 

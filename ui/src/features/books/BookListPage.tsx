@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { Tabs, Tab, Input, Card, CardBody, Chip, Progress, Spinner } from '@heroui/react'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { fetchBooks, setFilter, BookStatus } from './booksSlice'
+import { fetchAuthors } from '../authors/authorsSlice'
+import { resolveImg } from '../../lib/imageUrl'
 
 const STATUS_TABS: { key: BookStatus | 'all'; label: string }[] = [
   { key: 'all', label: 'All' },
@@ -47,9 +49,13 @@ function CoverPlaceholder({ title }: { title: string }) {
 export default function BookListPage() {
   const dispatch = useAppDispatch()
   const { items, loading, error, filter } = useAppSelector(s => s.books)
+  const authors = useAppSelector(s => s.authors.items)
   const [search, setSearch] = useState('')
 
-  useEffect(() => { dispatch(fetchBooks()) }, [dispatch])
+  useEffect(() => {
+    dispatch(fetchBooks())
+    dispatch(fetchAuthors())
+  }, [dispatch])
 
   const visible = useMemo(() =>
     items
@@ -123,9 +129,9 @@ export default function BookListPage() {
               >
                 <CardBody className="p-0 overflow-hidden">
                   <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-xl">
-                    {book.cover_url ? (
+                    {resolveImg(book.cover_url) ? (
                       <img
-                        src={book.cover_url}
+                        src={resolveImg(book.cover_url)!}
                         alt={book.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
@@ -143,7 +149,20 @@ export default function BookListPage() {
                   <div className="p-3 space-y-2">
                     <div>
                       <p className="font-semibold text-sm line-clamp-2 leading-tight">{book.title}</p>
-                      <p className="text-xs text-default-400 mt-0.5 line-clamp-1">{book.author}</p>
+                      {(() => {
+                        const a = authors.find(a => a.name.toLowerCase() === book.author.toLowerCase())
+                        return a ? (
+                          <Link
+                            to={`/authors/${a.id}`}
+                            className="text-xs text-default-400 mt-0.5 line-clamp-1 hover:text-violet-600 hover:underline transition-colors"
+                            onClick={e => e.stopPropagation()}
+                          >
+                            {book.author}
+                          </Link>
+                        ) : (
+                          <p className="text-xs text-default-400 mt-0.5 line-clamp-1">{book.author}</p>
+                        )
+                      })()}
                     </div>
                     <div className="space-y-1">
                       <div className="flex justify-between text-[11px] text-default-400">

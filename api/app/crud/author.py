@@ -2,6 +2,12 @@ from sqlalchemy.orm import Session
 from ..models.author import Author
 from ..schemas.author import AuthorCreate, AuthorUpdate
 
+def find_or_create(db: Session, name: str) -> Author:
+    existing = db.query(Author).filter(Author.name.ilike(name)).first()
+    if existing:
+        return existing
+    return create(db, AuthorCreate(name=name, bio=None))
+
 def get_all(db: Session) -> list[Author]:
     return db.query(Author).order_by(Author.name).all()
 
