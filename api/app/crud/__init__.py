@@ -1,1 +1,1 @@
-from . import book, author, category, review
+from . import book, author, category, review, user

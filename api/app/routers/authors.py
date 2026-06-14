@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 from ..crud import author as crud
 from ..schemas.author import AuthorCreate, AuthorUpdate, AuthorOut
 from ..database import get_db
+from ..core.security import get_current_user
 
-router = APIRouter(prefix="/authors", tags=["authors"])
+router = APIRouter(prefix="/authors", tags=["authors"], dependencies=[Depends(get_current_user)])
 
 def _get_or_404(db: Session, author_id: int):
     author = crud.get(db, author_id)

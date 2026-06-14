@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 from ..crud import category as crud
 from ..schemas.category import CategoryCreate, CategoryUpdate, CategoryOut
 from ..database import get_db
+from ..core.security import get_current_user
 
-router = APIRouter(prefix="/categories", tags=["categories"])
+router = APIRouter(prefix="/categories", tags=["categories"], dependencies=[Depends(get_current_user)])
 
 def _get_or_404(db: Session, category_id: int):
     category = crud.get(db, category_id)

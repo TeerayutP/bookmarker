@@ -4,8 +4,9 @@ from ..crud import book as crud
 from ..schemas.book import BookCreate, BookUpdate, ChapterPatch, BookOut
 from ..models.book import BookStatus
 from ..database import get_db
+from ..core.security import get_current_user
 
-router = APIRouter(prefix="/books", tags=["books"])
+router = APIRouter(prefix="/books", tags=["books"], dependencies=[Depends(get_current_user)])
 
 def _get_or_404(db: Session, book_id: int):
     book = crud.get(db, book_id)

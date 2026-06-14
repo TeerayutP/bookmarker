@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 from ..crud import review as crud
 from ..schemas.review import ReviewCreate, ReviewUpdate, ReviewOut
 from ..database import get_db
+from ..core.security import get_current_user
 
-router = APIRouter(prefix="/reviews", tags=["reviews"])
+router = APIRouter(prefix="/reviews", tags=["reviews"], dependencies=[Depends(get_current_user)])
 
 def _get_or_404(db: Session, review_id: int):
     review = crud.get(db, review_id)
