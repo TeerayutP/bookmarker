@@ -50,23 +50,32 @@ export default function Layout() {
               </Link>
             </NavbarItem>
           ))}
+          <NavbarItem>
+            <span className="mx-1 text-default-200">|</span>
+          </NavbarItem>
+          <NavbarItem>
+            <Button as={Link} to={addHref} color="secondary" variant="flat" size="sm" className="font-medium">
+              + Add
+            </Button>
+          </NavbarItem>
         </NavbarContent>
 
-        <NavbarContent justify="end" className="gap-2">
-          <NavbarItem>
-            <Button as={Link} to={addHref} color="secondary" variant="flat" size="sm">+ Add</Button>
-          </NavbarItem>
+        <NavbarContent justify="end" className="gap-3">
           {user && (
-            <NavbarItem className="flex items-center gap-2">
-              <User
-                name={user.username}
-                description={user.email}
-                classNames={{ name: 'text-xs font-medium', description: 'text-xs' }}
-              />
-              <Button size="sm" variant="light" color="danger" onPress={handleLogout}>
-                Logout
-              </Button>
-            </NavbarItem>
+            <>
+              <NavbarItem>
+                <User
+                  name={user.username}
+                  description={user.email}
+                  classNames={{ name: 'text-xs font-medium', description: 'text-xs' }}
+                />
+              </NavbarItem>
+              <NavbarItem>
+                <Button size="sm" variant="light" color="danger" onPress={handleLogout}>
+                  Logout
+                </Button>
+              </NavbarItem>
+            </>
           )}
         </NavbarContent>
       </Navbar>
