@@ -114,6 +114,22 @@ docker compose down -v        # teardown with volumes
 
 UI: http://localhost:5173 | API docs: http://localhost:8000/docs
 
+### Database Migrations (Alembic)
+
+Migrations live in `api/migrations/versions/`. The API container runs `alembic upgrade head` automatically on startup before uvicorn.
+
+```bash
+# Inside the api container (or with venv active in api/):
+alembic revision --autogenerate -m "describe the change"   # generate a new migration
+alembic upgrade head                                        # apply all pending migrations
+alembic downgrade -1                                        # roll back one migration
+alembic current                                             # show current revision
+alembic history                                             # show migration history
+
+# First time with an existing DB (tables already exist — skip creating them):
+alembic stamp head
+```
+
 ---
 
 ## Portfolio Enhancement Plan

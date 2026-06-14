@@ -2,22 +2,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from .database import engine, Base
-from . import models  # registers all models with Base
 from .routers import books, authors, categories, reviews, auth, stats
-
-Base.metadata.create_all(bind=engine)
-
-from sqlalchemy import text
-
-with engine.connect() as _conn:
-    exists = _conn.execute(text(
-        "SELECT COUNT(*) FROM information_schema.columns "
-        "WHERE table_schema = DATABASE() AND table_name = 'books' AND column_name = 'synopsis'"
-    )).scalar()
-    if not exists:
-        _conn.execute(text("ALTER TABLE books ADD COLUMN synopsis TEXT NULL"))
-        _conn.commit()
 
 app = FastAPI(title="Bookmarker API")
 
