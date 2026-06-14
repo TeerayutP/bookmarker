@@ -67,9 +67,9 @@ export default function AddBookPage() {
       <Card isBlurred className="border border-white/40 shadow-lg">
         <CardBody className="p-6">
           <form onSubmit={handleSubmit}>
-            <div className="flex gap-6">
-              <div className="flex flex-col items-center gap-3 shrink-0">
-                <div className="w-28 aspect-[3/4] rounded-xl overflow-hidden border-2 border-dashed border-default-200 bg-default-50 flex items-center justify-center">
+            <div className="flex flex-col sm:flex-row gap-6">
+              <div className="flex sm:flex-col items-center gap-3 sm:shrink-0">
+                <div className="w-20 sm:w-28 aspect-[3/4] rounded-xl overflow-hidden border-2 border-dashed border-default-200 bg-default-50 flex items-center justify-center shrink-0">
                   {resolveImg(coverUrl) ? (
                     <img src={resolveImg(coverUrl)!} alt="Cover preview" className="w-full h-full object-cover" />
                   ) : (
@@ -79,7 +79,7 @@ export default function AddBookPage() {
                     </div>
                   )}
                 </div>
-                <p className="text-[10px] text-default-400 text-center w-28">Paste a cover URL below</p>
+                <p className="text-[10px] text-default-400 text-center sm:w-28">Paste a cover URL below</p>
               </div>
 
               <div className="flex-1 space-y-4 min-w-0">

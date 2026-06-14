@@ -77,9 +77,9 @@ export default function AuthorListPage() {
             return (
               <Card key={author.id} isBlurred className="border border-white/40 shadow-sm">
                 <CardBody className="p-0">
-                  <div className="flex min-h-0">
+                  <div className="flex flex-col sm:flex-row min-h-0">
                     {/* Author panel */}
-                    <div className="w-52 shrink-0 flex flex-col gap-3 p-4 border-r border-default-100">
+                    <div className="sm:w-52 shrink-0 flex flex-col gap-3 p-4 border-b sm:border-b-0 sm:border-r border-default-100">
                       <Link to={`/authors/${author.id}`} className="flex items-center gap-3 group">
                         <AuthorAvatar name={author.name} size="lg" />
                         <div className="min-w-0">

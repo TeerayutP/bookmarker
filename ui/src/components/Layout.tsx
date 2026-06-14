@@ -1,12 +1,12 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Button, User } from '@heroui/react'
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Button } from '@heroui/react'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { logout } from '../features/auth/authSlice'
 
 const NAV_LINKS = [
-  { to: '/', label: 'Books', match: (p: string) => p === '/' || p.startsWith('/books') },
-  { to: '/authors', label: 'Authors', match: (p: string) => p.startsWith('/authors') },
-  { to: '/categories', label: 'Categories', match: (p: string) => p.startsWith('/categories') },
+  { to: '/', label: 'Books', emoji: '📚', match: (p: string) => p === '/' || p.startsWith('/books') },
+  { to: '/authors', label: 'Authors', emoji: '✍️', match: (p: string) => p.startsWith('/authors') },
+  { to: '/categories', label: 'Categories', emoji: '🏷️', match: (p: string) => p.startsWith('/categories') },
 ]
 
 export default function Layout() {
@@ -42,18 +42,14 @@ export default function Layout() {
           ))}
         </NavbarContent>
 
-        <NavbarContent justify="end" className="gap-3">
+        <NavbarContent justify="end" className="gap-2">
           {user && (
             <>
-              <NavbarItem>
-                <User
-                  name={user.username}
-                  description={user.email}
-                  classNames={{ name: 'text-xs font-medium', description: 'text-xs' }}
-                />
+              <NavbarItem className="hidden sm:flex">
+                <span className="text-xs text-default-500 font-medium">{user.username}</span>
               </NavbarItem>
               <NavbarItem>
-                <Button size="sm" variant="light" color="danger" onPress={handleLogout}>
+                <Button size="sm" variant="light" color="danger" onPress={handleLogout} className="hidden sm:flex">
                   Logout
                 </Button>
               </NavbarItem>
@@ -62,9 +58,34 @@ export default function Layout() {
         </NavbarContent>
       </Navbar>
 
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="max-w-5xl mx-auto px-4 py-6 pb-24 sm:pb-8">
         <Outlet />
       </main>
+
+      {/* Mobile bottom nav */}
+      <nav className="sm:hidden fixed bottom-0 inset-x-0 z-50 bg-white/90 backdrop-blur-md border-t border-default-100">
+        <div className="flex h-14">
+          {NAV_LINKS.map(link => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={`flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors ${
+                link.match(pathname) ? 'text-violet-700' : 'text-default-400'
+              }`}
+            >
+              <span className="text-lg leading-none">{link.emoji}</span>
+              <span className="text-[10px] font-medium">{link.label}</span>
+            </Link>
+          ))}
+          <button
+            onClick={handleLogout}
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 text-danger"
+          >
+            <span className="text-lg leading-none">🚪</span>
+            <span className="text-[10px] font-medium">Logout</span>
+          </button>
+        </div>
+      </nav>
     </div>
   )
 }

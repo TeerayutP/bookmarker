@@ -156,9 +156,9 @@ export default function BookDetailPage() {
               </div>
             </div>
           ) : (
-            <div className="flex gap-0">
-              <div className="w-36 shrink-0 p-4">
-                <div className="aspect-[3/4] w-full rounded-xl overflow-hidden shadow-md">
+            <div className="flex flex-col sm:flex-row gap-0">
+              <div className="sm:w-36 shrink-0 p-4 flex sm:block justify-center">
+                <div className="aspect-[3/4] w-28 sm:w-full rounded-xl overflow-hidden shadow-md">
                   {resolveImg(book.cover_url) ? (
                     <img src={resolveImg(book.cover_url)!} alt={book.title} className="w-full h-full object-cover" />
                   ) : (
@@ -167,7 +167,7 @@ export default function BookDetailPage() {
                 </div>
               </div>
 
-              <div className="flex-1 p-5 space-y-4 min-w-0">
+              <div className="flex-1 px-5 pb-5 sm:py-5 space-y-4 min-w-0">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <h1 className="text-xl font-bold text-default-900 leading-tight">{book.title}</h1>

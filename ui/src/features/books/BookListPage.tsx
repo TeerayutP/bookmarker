@@ -117,49 +117,51 @@ export default function BookListPage() {
         </div>
       )}
 
-      <div className="flex gap-2 items-center">
-        <Select
-          selectedKeys={[filter]}
-          onSelectionChange={k => dispatch(setFilter([...k][0] as BookStatus | 'all'))}
-          aria-label="Filter by status"
-          variant="bordered"
-          size="sm"
-          className="w-36"
-        >
-          {STATUS_TABS.map(t => <SelectItem key={t.key}>{t.label}</SelectItem>)}
-        </Select>
+      <div className="flex flex-col gap-2">
+        {/* Row 1: filters */}
+        <div className="flex gap-2 items-center">
+          <Select
+            selectedKeys={[filter]}
+            onSelectionChange={k => dispatch(setFilter([...k][0] as BookStatus | 'all'))}
+            aria-label="Filter by status"
+            variant="bordered"
+            size="sm"
+            className="flex-1 min-w-0"
+          >
+            {STATUS_TABS.map(t => <SelectItem key={t.key}>{t.label}</SelectItem>)}
+          </Select>
 
-        <Select
-          placeholder="All categories"
-          selectedKeys={categoryFilter !== null ? [String(categoryFilter)] : []}
-          onSelectionChange={keys => {
-            const val = [...keys][0]
-            dispatch(setCategoryFilter(val != null ? Number(val) : null))
-          }}
-          variant="bordered"
-          size="sm"
-          className="w-44"
-          aria-label="Filter by category"
-        >
-          {categories.map(c => (
-            <SelectItem key={String(c.id)}>{c.name}</SelectItem>
-          ))}
-        </Select>
+          <Select
+            placeholder="All categories"
+            selectedKeys={categoryFilter !== null ? [String(categoryFilter)] : []}
+            onSelectionChange={keys => {
+              const val = [...keys][0]
+              dispatch(setCategoryFilter(val != null ? Number(val) : null))
+            }}
+            variant="bordered"
+            size="sm"
+            className="flex-1 min-w-0"
+            aria-label="Filter by category"
+          >
+            {categories.map(c => (
+              <SelectItem key={String(c.id)}>{c.name}</SelectItem>
+            ))}
+          </Select>
 
-        {categoryFilter !== null && (
-          <Button size="sm" variant="light" onPress={() => dispatch(setCategoryFilter(null))} className="text-default-400 shrink-0 px-2">
-            ✕
-          </Button>
-        )}
+          {categoryFilter !== null && (
+            <Button size="sm" variant="light" onPress={() => dispatch(setCategoryFilter(null))} className="text-default-400 shrink-0 px-2 min-w-0">
+              ✕
+            </Button>
+          )}
+        </div>
 
-        <div className="flex-1" />
-
+        {/* Row 2: search + view toggle + add */}
         <div className="flex gap-2 items-center">
           <Input
             placeholder="Search title or author…"
             value={search}
             onValueChange={setSearch}
-            className="max-w-xs"
+            className="flex-1 min-w-0"
             isClearable
             onClear={() => setSearch('')}
             variant="bordered"
@@ -167,7 +169,7 @@ export default function BookListPage() {
             startContent={<span className="text-default-400 text-sm">🔍</span>}
           />
 
-          <ButtonGroup size="sm" variant="flat">
+          <ButtonGroup size="sm" variant="flat" className="shrink-0">
             <Button
               isIconOnly
               color={view === 'grid' ? 'secondary' : 'default'}
@@ -196,7 +198,7 @@ export default function BookListPage() {
           </ButtonGroup>
 
           <Button as={Link} to="/books/new" color="secondary" variant="flat" size="sm" className="shrink-0">
-            + Add Book
+            + Add
           </Button>
         </div>
       </div>
@@ -211,8 +213,8 @@ export default function BookListPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {visible.map(book => (
             <Link key={book.id} to={`/books/${book.id}`} className="group block">
-              <Card isPressable isBlurred className="h-full border border-white/40 shadow-sm group-hover:shadow-md transition-shadow">
-                <CardBody className="p-0 overflow-hidden">
+              <Card isPressable isBlurred className="h-full w-full border border-white/40 shadow-sm group-hover:shadow-md transition-shadow">
+                <CardBody className="p-0 overflow-hidden w-full">
                   <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-xl">
                     {resolveImg(book.cover_url) ? (
                       <img
