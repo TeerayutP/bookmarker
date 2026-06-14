@@ -1,0 +1,19 @@
+# env
+.env
+api/.env
+
+# Python
+api/.venv/
+__pycache__/
+*.pyc
+
+# Node
+ui/node_modules/
+
+# Build
+ui/dist/
+
+# Misc
+bookmarker/
+screenshot*.png
+package-lock.json

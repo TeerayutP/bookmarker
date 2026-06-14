@@ -1,0 +1,13 @@
+// Gradient palette (mirrors Tailwind classes used in Layout)
+$gradient-from:  #dbeafe; // blue-100
+$gradient-via:   #ede9fe; // violet-50
+$gradient-to:    #fce7f3; // rose-100
+
+// Glass surface
+$glass-bg:       rgba(255, 255, 255, 0.5);
+$glass-border:   rgba(255, 255, 255, 0.6);
+$glass-blur:     12px;
+
+// Spacing
+$content-max-width: 64rem; // max-w-5xl
+$content-px:        1rem;

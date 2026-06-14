@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(claude-api)",
+      "Skill(update-config)",
+      "PowerShell(py *)",
+      "PowerShell(winget install *)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Wait-Process *)",
+      "PowerShell(Start-Sleep -Seconds 5; $edge = \"C:\\\\Program Files \\(x86\\)\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe\"; & $edge --headless --screenshot=\"C:\\\\Users\\\\User\\\\Projects\\\\bookmarker\\\\screenshot2.png\" --window-size=1280,900 \"http://localhost:3000/books/new\" 2>$null; Start-Sleep -Seconds 3)"
+    ]
+  }
+}

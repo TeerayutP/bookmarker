@@ -1,0 +1,10 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Feature-specific partials (add as features grow)
+// @use '../features/books/books';
+// @use '../features/authors/authors';
