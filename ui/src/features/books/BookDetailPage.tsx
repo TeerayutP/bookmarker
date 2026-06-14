@@ -62,7 +62,7 @@ export default function BookDetailPage() {
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const { open: openFilePicker, uploading, Input: FileInput } = useCoverUpload(setCoverUrl)
+  const { open: openFilePicker, uploading, fetching, fetchFromUrl, Input: FileInput } = useCoverUpload(setCoverUrl)
 
   useEffect(() => {
     if (!book) dispatch(fetchBooks())
@@ -143,6 +143,17 @@ export default function BookDetailPage() {
                 <FileInput />
                 <Button size="sm" variant="flat" color="secondary" onPress={openFilePicker} isLoading={uploading} fullWidth>
                   {uploading ? 'Uploading…' : '📁 Upload image file'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="flat"
+                  color="secondary"
+                  onPress={() => fetchFromUrl(coverUrl)}
+                  isLoading={fetching}
+                  isDisabled={!coverUrl.startsWith('http')}
+                  className="w-full"
+                >
+                  {fetching ? 'Fetching…' : '🌐 Fetch from URL'}
                 </Button>
               </div>
               {resolveImg(coverUrl) && (

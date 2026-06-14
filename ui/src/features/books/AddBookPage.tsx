@@ -30,7 +30,7 @@ export default function AddBookPage() {
   const [coverUrl, setCoverUrl] = useState('')
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
-  const { open: openFilePicker, uploading, Input: FileInput } = useCoverUpload(setCoverUrl)
+  const { open: openFilePicker, uploading, fetching, fetchFromUrl, Input: FileInput } = useCoverUpload(setCoverUrl)
 
   useEffect(() => {
     dispatch(fetchAuthors())
@@ -161,6 +161,17 @@ export default function AddBookPage() {
                   <FileInput />
                   <Button size="sm" variant="flat" color="secondary" onPress={openFilePicker} isLoading={uploading} className="w-full">
                     {uploading ? 'Uploading…' : '📁 Upload image file'}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    color="secondary"
+                    onPress={() => fetchFromUrl(coverUrl)}
+                    isLoading={fetching}
+                    isDisabled={!coverUrl.startsWith('http')}
+                    className="w-full"
+                  >
+                    {fetching ? 'Fetching…' : '🌐 Fetch from URL'}
                   </Button>
                 </div>
 

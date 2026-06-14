@@ -26,5 +26,17 @@ export function useCoverUpload(onSuccess: (url: string) => void) {
     <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleChange} />
   )
 
-  return { open, uploading, Input }
+  const [fetching, setFetching] = useState(false)
+
+  const fetchFromUrl = async (url: string) => {
+    setFetching(true)
+    try {
+      const res = await apiClient.post<{ cover_url: string }>('/books/covers/fetch', { url })
+      onSuccess(res.data.cover_url)
+    } finally {
+      setFetching(false)
+    }
+  }
+
+  return { open, uploading, fetching, fetchFromUrl, Input }
 }

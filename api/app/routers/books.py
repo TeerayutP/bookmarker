@@ -1,8 +1,10 @@
 import csv
 import io
 import os
+import urllib.request
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from pydantic import BaseModel
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from ..crud import book as crud, author as author_crud, category as category_crud
@@ -15,6 +17,17 @@ router = APIRouter(prefix="/books", tags=["books"], dependencies=[Depends(get_cu
 
 COVERS_DIR = "uploads/covers"
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+
+CONTENT_TYPE_EXT = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+    "image/gif": "gif",
+}
+
+
+class CoverFetchRequest(BaseModel):
+    url: str
 
 
 def _resolve(db: Session, data: BookCreate | BookUpdate) -> BookCreate | BookUpdate:
@@ -43,6 +56,30 @@ async def upload_cover(file: UploadFile = File(...)):
     content = await file.read()
     with open(os.path.join(COVERS_DIR, filename), "wb") as f:
         f.write(content)
+    return {"cover_url": f"/static/covers/{filename}"}
+
+
+@router.post("/covers/fetch")
+async def fetch_cover(payload: CoverFetchRequest):
+    if not payload.url.startswith(("http://", "https://")):
+        raise HTTPException(status_code=400, detail="URL must start with http:// or https://")
+    try:
+        with urllib.request.urlopen(payload.url, timeout=10) as resp:
+            content_type = resp.headers.get("Content-Type", "").split(";")[0].strip()
+            data = resp.read()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Failed to download image")
+    if not content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="URL does not point to an image")
+    if content_type in CONTENT_TYPE_EXT:
+        ext = CONTENT_TYPE_EXT[content_type]
+    else:
+        path = payload.url.split("?")[0]
+        ext = path.rsplit(".", 1)[-1].lower() if "." in path.rsplit("/", 1)[-1] else "jpg"
+    filename = f"{uuid.uuid4().hex}.{ext}"
+    os.makedirs(COVERS_DIR, exist_ok=True)
+    with open(os.path.join(COVERS_DIR, filename), "wb") as f:
+        f.write(data)
     return {"cover_url": f"/static/covers/{filename}"}
 
 
