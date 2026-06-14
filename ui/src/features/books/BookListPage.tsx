@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Tabs, Tab, Input, Card, CardBody, Chip, Progress, Spinner, Button, ButtonGroup } from '@heroui/react'
+import { Input, Card, CardBody, Chip, Progress, Spinner, Button, ButtonGroup, Select, SelectItem } from '@heroui/react'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
-import { fetchBooks, setFilter, BookStatus } from './booksSlice'
+import { fetchBooks, setFilter, setCategoryFilter, BookStatus } from './booksSlice'
 import { fetchAuthors } from '../authors/authorsSlice'
+import { fetchCategories } from '../categories/categoriesSlice'
 import { resolveImg } from '../../lib/imageUrl'
 
 const STATUS_TABS: { key: BookStatus | 'all'; label: string }[] = [
@@ -64,8 +65,9 @@ function AuthorLink({ authorName, authors }: { authorName: string; authors: { id
 
 export default function BookListPage() {
   const dispatch = useAppDispatch()
-  const { items, loading, error, filter } = useAppSelector(s => s.books)
+  const { items, loading, error, filter, categoryFilter } = useAppSelector(s => s.books)
   const authors = useAppSelector(s => s.authors.items)
+  const categories = useAppSelector(s => s.categories.items)
   const [search, setSearch] = useState('')
   const [view, setView] = useState<ViewMode>(() =>
     (localStorage.getItem('bookListView') as ViewMode) ?? 'grid'
@@ -79,15 +81,17 @@ export default function BookListPage() {
   useEffect(() => {
     dispatch(fetchBooks())
     dispatch(fetchAuthors())
+    dispatch(fetchCategories())
   }, [dispatch])
 
   const visible = useMemo(() =>
     items
       .filter(b => filter === 'all' || b.status === filter)
+      .filter(b => categoryFilter === null || b.category_id === categoryFilter)
       .filter(b => search === '' ||
         b.title.toLowerCase().includes(search.toLowerCase()) ||
         b.author.toLowerCase().includes(search.toLowerCase())),
-    [items, filter, search],
+    [items, filter, categoryFilter, search],
   )
 
   const readingCount = items.filter(b => b.status === 'reading').length
@@ -113,16 +117,42 @@ export default function BookListPage() {
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-        <Tabs
-          selectedKey={filter}
-          onSelectionChange={k => dispatch(setFilter(k as BookStatus | 'all'))}
+      <div className="flex gap-2 items-center">
+        <Select
+          selectedKeys={[filter]}
+          onSelectionChange={k => dispatch(setFilter([...k][0] as BookStatus | 'all'))}
           aria-label="Filter by status"
-          color="secondary"
-          variant="underlined"
+          variant="bordered"
+          size="sm"
+          className="w-36"
         >
-          {STATUS_TABS.map(t => <Tab key={t.key} title={t.label} />)}
-        </Tabs>
+          {STATUS_TABS.map(t => <SelectItem key={t.key}>{t.label}</SelectItem>)}
+        </Select>
+
+        <Select
+          placeholder="All categories"
+          selectedKeys={categoryFilter !== null ? [String(categoryFilter)] : []}
+          onSelectionChange={keys => {
+            const val = [...keys][0]
+            dispatch(setCategoryFilter(val != null ? Number(val) : null))
+          }}
+          variant="bordered"
+          size="sm"
+          className="w-44"
+          aria-label="Filter by category"
+        >
+          {categories.map(c => (
+            <SelectItem key={String(c.id)}>{c.name}</SelectItem>
+          ))}
+        </Select>
+
+        {categoryFilter !== null && (
+          <Button size="sm" variant="light" onPress={() => dispatch(setCategoryFilter(null))} className="text-default-400 shrink-0 px-2">
+            ✕
+          </Button>
+        )}
+
+        <div className="flex-1" />
 
         <div className="flex gap-2 items-center">
           <Input

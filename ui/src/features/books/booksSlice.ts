@@ -36,6 +36,7 @@ interface BooksState {
   loading: boolean
   error: string | null
   filter: BookStatus | 'all'
+  categoryFilter: number | null
 }
 
 const initialState: BooksState = {
@@ -43,6 +44,7 @@ const initialState: BooksState = {
   loading: false,
   error: null,
   filter: 'all',
+  categoryFilter: null,
 }
 
 export const fetchBooks = createAsyncThunk('books/fetchAll', async (status?: BookStatus) => {
@@ -84,6 +86,9 @@ const booksSlice = createSlice({
     setFilter(state, action: PayloadAction<BooksState['filter']>) {
       state.filter = action.payload
     },
+    setCategoryFilter(state, action: PayloadAction<number | null>) {
+      state.categoryFilter = action.payload
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -105,5 +110,5 @@ const booksSlice = createSlice({
   },
 })
 
-export const { setFilter } = booksSlice.actions
+export const { setFilter, setCategoryFilter } = booksSlice.actions
 export default booksSlice.reducer
