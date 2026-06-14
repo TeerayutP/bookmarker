@@ -11,6 +11,7 @@ import CategoryListPage from '../features/categories/CategoryListPage'
 import CategoryFormPage from '../features/categories/CategoryFormPage'
 import LoginPage from '../features/auth/LoginPage'
 import RegisterPage from '../features/auth/RegisterPage'
+import DashboardPage from '../features/stats/DashboardPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -32,6 +33,7 @@ export const router = createBrowserRouter([
       { path: 'categories', element: <CategoryListPage /> },
       { path: 'categories/new', element: <CategoryFormPage /> },
       { path: 'categories/:id', element: <CategoryFormPage /> },
+      { path: 'dashboard', element: <DashboardPage /> },
     ],
   },
 ])

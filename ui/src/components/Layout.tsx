@@ -7,6 +7,7 @@ const NAV_LINKS = [
   { to: '/', label: 'Books', emoji: '📚', match: (p: string) => p === '/' || p.startsWith('/books') },
   { to: '/authors', label: 'Authors', emoji: '✍️', match: (p: string) => p.startsWith('/authors') },
   { to: '/categories', label: 'Categories', emoji: '🏷️', match: (p: string) => p.startsWith('/categories') },
+  { to: '/dashboard', label: 'Dashboard', emoji: '📊', match: (p: string) => p.startsWith('/dashboard') },
 ]
 
 export default function Layout() {

@@ -4,6 +4,7 @@ import authorsReducer from '../features/authors/authorsSlice'
 import categoriesReducer from '../features/categories/categoriesSlice'
 import reviewsReducer from '../features/reviews/reviewsSlice'
 import authReducer from '../features/auth/authSlice'
+import statsReducer from '../features/stats/statsSlice'
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     authors: authorsReducer,
     categories: categoriesReducer,
     reviews: reviewsReducer,
+    stats: statsReducer,
   },
 })
 

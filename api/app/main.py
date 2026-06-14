@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from .database import engine, Base
 from . import models  # registers all models with Base
-from .routers import books, authors, categories, reviews, auth
+from .routers import books, authors, categories, reviews, auth, stats
 
 Base.metadata.create_all(bind=engine)
 
@@ -26,6 +26,7 @@ app.include_router(books.router)
 app.include_router(authors.router)
 app.include_router(categories.router)
 app.include_router(reviews.router)
+app.include_router(stats.router)
 
 @app.get("/health")
 def health():
