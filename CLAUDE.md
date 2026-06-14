@@ -113,3 +113,87 @@ docker compose down -v        # teardown with volumes
 ```
 
 UI: http://localhost:5173 | API docs: http://localhost:8000/docs
+
+---
+
+## Portfolio Enhancement Plan
+
+> Phases ordered by recruiter impact. Complete in order.
+
+### Phase 5 — Deploy (Live Demo URL)
+
+**Goal:** Have a publicly accessible URL to put on the resume/GitHub.
+
+- [ ] Dockerize for production — add `docker-compose.prod.yml` with env-var–based config
+- [ ] Add `api/.env.example` and `ui/.env.example` documenting all required vars
+- [ ] Deploy MySQL to PlanetScale (free tier) or Railway managed DB
+- [ ] Deploy FastAPI backend to Railway or Render (connect to managed DB)
+- [ ] Build React app for production (`vite build`) and deploy to Vercel or Netlify
+- [ ] Set `VITE_API_URL` env var on Vercel/Netlify pointing to the deployed backend
+- [ ] Configure CORS on the API to allow the deployed frontend origin
+- [ ] Smoke-test login, add book, upload cover, and chapter update on the live URL
+
+### Phase 6 — README & GitHub Presentation
+
+**Goal:** Make the GitHub repo look professional at first glance.
+
+- [ ] Write `README.md` with: project description, tech stack badges, live demo link, and local dev setup
+- [ ] Add architecture diagram (ASCII or image) showing ui ↔ api ↔ db
+- [ ] Add 2–3 screenshots (book list, book detail, mobile view)
+- [ ] Document all env vars in README
+- [ ] Add `CONTRIBUTING.md` (brief — just shows awareness)
+
+### Phase 7 — Dashboard & Statistics
+
+**Goal:** Visually impressive page that showcases end-to-end data wiring.
+
+- [ ] Add `GET /stats` endpoint returning: total books by status, books added per month (last 6 months), average chapters per book, top categories
+- [ ] Add `statsSlice` in Redux with async thunk calling `/stats`
+- [ ] Install `recharts` in the UI
+- [ ] Build `/dashboard` page with:
+  - [ ] Summary cards — total books, currently reading, completed this year
+  - [ ] Donut chart — books by status
+  - [ ] Bar chart — books added per month (last 6 months)
+  - [ ] Progress toward reading goal (hardcoded or user-set)
+- [ ] Add Dashboard link to nav (desktop sidebar + mobile bottom nav)
+
+### Phase 8 — Reading Goals
+
+**Goal:** Simple engagement feature; pairs well with the dashboard.
+
+- [ ] Add `goal_year` and `goal_count` columns to `User` model + migration
+- [ ] Add `PATCH /users/me/goal` endpoint
+- [ ] Add goal form (year + target count) on a `/settings` or `/profile` page
+- [ ] Wire goal progress into the dashboard summary card
+- [ ] Show "X of Y books completed this year" with a HeroUI Progress bar
+
+### Phase 9 — Google Books API Integration
+
+**Goal:** Shows external API integration; makes the Add Book flow feel polished.
+
+- [ ] Add a search-by-title input on the Add Book form (client-side only, calls Google Books API directly from the browser)
+- [ ] Display a dropdown of results with cover thumbnail, title, author
+- [ ] On selection: auto-fill title, author, cover URL, and total pages (mapped to `total_chapters`)
+- [ ] Keep all fields editable after auto-fill
+- [ ] Debounce the search input (300 ms)
+
+### Phase 10 — Backend Tests
+
+**Goal:** Demonstrates engineering discipline; most portfolio projects have zero tests.
+
+- [ ] Set up `pytest` + `httpx` (async test client) in `api/`
+- [ ] Add `conftest.py` with a test DB fixture (SQLite in-memory)
+- [ ] Auth tests: register, login, invalid credentials
+- [ ] Books tests: create, read, update, delete, chapter patch
+- [ ] Categories & authors tests: CRUD happy paths
+- [ ] Run tests in CI — add `.github/workflows/test.yml` running `pytest` on push
+
+### Phase 11 — UX Polish
+
+**Goal:** Small touches that make the app feel production-quality.
+
+- [ ] Pagination or infinite scroll on the book list (backend: add `skip`/`limit` query params; frontend: "Load more" button)
+- [ ] Sorting on book list — by title A–Z, recently updated, reading progress %
+- [ ] Dark mode toggle using HeroUI v2 `ThemeProvider` — persist choice in `localStorage`
+- [ ] CSV export — `GET /books/export` returns CSV; frontend has a download button on the book list
+- [ ] Confirm dialog before deleting a book (currently fires immediately)
