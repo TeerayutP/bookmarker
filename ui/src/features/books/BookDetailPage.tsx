@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Input, Select, SelectItem, Textarea, Button, Card, CardBody, CardHeader, Progress, Chip, Divider } from '@heroui/react'
+import { Input, Select, SelectItem, Textarea, Button, Card, CardBody, Progress, Chip, Divider } from '@heroui/react'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { fetchBooks, updateBook, patchChapter, deleteBook, BookStatus } from './booksSlice'
 
@@ -13,6 +13,28 @@ const STATUS_OPTIONS: { key: BookStatus; label: string }[] = [
 
 const STATUS_COLOR: Record<BookStatus, 'primary' | 'success' | 'warning' | 'danger'> = {
   reading: 'primary', completed: 'success', on_hold: 'warning', dropped: 'danger',
+}
+
+const STATUS_LABEL: Record<BookStatus, string> = {
+  reading: 'Reading', completed: 'Completed', on_hold: 'On Hold', dropped: 'Dropped',
+}
+
+function CoverPlaceholder({ title }: { title: string }) {
+  const colors = [
+    'from-violet-400 to-purple-600',
+    'from-blue-400 to-cyan-600',
+    'from-rose-400 to-pink-600',
+    'from-amber-400 to-orange-600',
+    'from-emerald-400 to-teal-600',
+  ]
+  const color = colors[title.charCodeAt(0) % colors.length]
+  return (
+    <div className={`w-full h-full bg-gradient-to-br ${color} flex items-center justify-center rounded-xl`}>
+      <span className="text-white text-6xl font-bold opacity-80 select-none">
+        {title.charAt(0).toUpperCase()}
+      </span>
+    </div>
+  )
 }
 
 export default function BookDetailPage() {
@@ -33,7 +55,14 @@ export default function BookDetailPage() {
 
   useEffect(() => { if (!book) dispatch(fetchBooks()) }, [book, dispatch])
   useEffect(() => {
-    if (book) { setTitle(book.title); setAuthor(book.author); setTotalChapters(book.total_chapters?.toString() ?? ''); setStatus(book.status); setCoverUrl(book.cover_url ?? ''); setNotes(book.notes ?? '') }
+    if (book) {
+      setTitle(book.title)
+      setAuthor(book.author)
+      setTotalChapters(book.total_chapters?.toString() ?? '')
+      setStatus(book.status)
+      setCoverUrl(book.cover_url ?? '')
+      setNotes(book.notes ?? '')
+    }
   }, [book])
 
   if (!book) return <p className="text-center py-20 text-default-400">Loading…</p>
@@ -41,12 +70,16 @@ export default function BookDetailPage() {
   const handleSave = async () => {
     setSaving(true)
     try {
-      await dispatch(updateBook({ id: book.id, data: { title, author, total_chapters: totalChapters ? Number(totalChapters) : null, status, cover_url: coverUrl || null, notes: notes || null } })).unwrap()
+      await dispatch(updateBook({
+        id: book.id,
+        data: { title, author, total_chapters: totalChapters ? Number(totalChapters) : null, status, cover_url: coverUrl || null, notes: notes || null },
+      })).unwrap()
       setEditing(false)
     } finally { setSaving(false) }
   }
 
-  const handleChapterChange = (delta: number) => dispatch(patchChapter({ id: book.id, chapter: Math.max(0, book.current_chapter + delta) }))
+  const handleChapterChange = (delta: number) =>
+    dispatch(patchChapter({ id: book.id, chapter: Math.max(0, book.current_chapter + delta) }))
 
   const handleDelete = async () => {
     setDeleting(true)
@@ -56,49 +89,120 @@ export default function BookDetailPage() {
   const progress = book.total_chapters ? (book.current_chapter / book.total_chapters) * 100 : null
 
   return (
-    <div className="max-w-lg mx-auto space-y-4">
-      <Card isBlurred>
-        <CardHeader className="flex justify-between items-start">
-          {editing ? <h1 className="text-xl font-bold">Edit Book</h1> : <div><h1 className="text-xl font-bold">{book.title}</h1><p className="text-default-500">{book.author}</p></div>}
-          <Chip size="sm" color={STATUS_COLOR[book.status]} variant="flat">{book.status.replace('_', ' ')}</Chip>
-        </CardHeader>
-        <CardBody className="space-y-4">
+    <div className="max-w-2xl mx-auto">
+      <Button variant="light" size="sm" className="mb-4 text-default-500" onPress={() => navigate('/')}>
+        ← Back to library
+      </Button>
+
+      <Card isBlurred className="border border-white/40 shadow-lg overflow-visible">
+        <CardBody className="p-0">
           {editing ? (
-            <>
-              <Input label="Title" value={title} onValueChange={setTitle} isRequired variant="bordered" />
-              <Input label="Author" value={author} onValueChange={setAuthor} isRequired variant="bordered" />
-              <Input label="Total Chapters" type="number" min={1} value={totalChapters} onValueChange={setTotalChapters} placeholder="optional" variant="bordered" />
-              <Select label="Status" selectedKeys={[status]} onSelectionChange={keys => setStatus([...keys][0] as BookStatus)} variant="bordered">
-                {STATUS_OPTIONS.map(o => <SelectItem key={o.key}>{o.label}</SelectItem>)}
-              </Select>
+            <div className="p-6 space-y-4">
+              <h2 className="text-lg font-bold text-default-800">Edit Book</h2>
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="Title" value={title} onValueChange={setTitle} isRequired variant="bordered" className="col-span-2" />
+                <Input label="Author" value={author} onValueChange={setAuthor} isRequired variant="bordered" className="col-span-2" />
+                <Input label="Total Chapters" type="number" min={1} value={totalChapters} onValueChange={setTotalChapters} placeholder="optional" variant="bordered" />
+                <Select label="Status" selectedKeys={[status]} onSelectionChange={k => setStatus([...k][0] as BookStatus)} variant="bordered">
+                  {STATUS_OPTIONS.map(o => <SelectItem key={o.key}>{o.label}</SelectItem>)}
+                </Select>
+              </div>
               <Input label="Cover URL" value={coverUrl} onValueChange={setCoverUrl} placeholder="optional" variant="bordered" />
-              <Textarea label="Notes" value={notes} onValueChange={setNotes} variant="bordered" />
-              <div className="flex gap-3 justify-end">
+              {coverUrl && (
+                <div className="aspect-[3/4] w-24 rounded-lg overflow-hidden border border-default-200">
+                  <img src={coverUrl} alt="preview" className="w-full h-full object-cover" />
+                </div>
+              )}
+              <Textarea label="Notes" value={notes} onValueChange={setNotes} variant="bordered" minRows={3} />
+              <div className="flex gap-2 justify-end pt-2">
                 <Button variant="flat" onPress={() => setEditing(false)}>Cancel</Button>
-                <Button color="secondary" isLoading={saving} onPress={handleSave}>Save</Button>
+                <Button color="secondary" isLoading={saving} onPress={handleSave}>Save Changes</Button>
               </div>
-            </>
+            </div>
           ) : (
-            <>
-              <div className="space-y-2">
-                <p className="text-small text-default-500">Chapter progress</p>
-                <div className="flex items-center gap-3">
-                  <Button size="sm" variant="flat" isIconOnly onPress={() => handleChapterChange(-1)}>−</Button>
-                  <span className="text-lg font-semibold min-w-[3ch] text-center">{book.current_chapter}</span>
-                  <Button size="sm" variant="flat" isIconOnly onPress={() => handleChapterChange(1)}>+</Button>
-                  {book.total_chapters && <span className="text-default-400 text-small">/ {book.total_chapters}</span>}
-                </div>
-                {progress !== null && <Progress value={progress} color={STATUS_COLOR[book.status]} className="mt-2" aria-label="Reading progress" showValueLabel />}
-              </div>
-              {book.notes && <><Divider /><div><p className="text-small text-default-500 mb-1">Notes</p><p className="whitespace-pre-wrap">{book.notes}</p></div></>}
-              <div className="flex gap-3 justify-between pt-2">
-                <Button color="danger" variant="flat" isLoading={deleting} onPress={handleDelete}>Delete</Button>
-                <div className="flex gap-2">
-                  <Button variant="flat" onPress={() => navigate('/')}>Back</Button>
-                  <Button color="secondary" onPress={() => setEditing(true)}>Edit</Button>
+            <div className="flex gap-0">
+              <div className="w-36 shrink-0 p-4">
+                <div className="aspect-[3/4] w-full rounded-xl overflow-hidden shadow-md">
+                  {book.cover_url ? (
+                    <img src={book.cover_url} alt={book.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <CoverPlaceholder title={book.title} />
+                  )}
                 </div>
               </div>
-            </>
+
+              <div className="flex-1 p-5 space-y-4 min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h1 className="text-xl font-bold text-default-900 leading-tight">{book.title}</h1>
+                    <p className="text-default-500 text-sm mt-0.5">{book.author}</p>
+                  </div>
+                  <Chip size="sm" color={STATUS_COLOR[book.status]} variant="flat" className="shrink-0">
+                    {STATUS_LABEL[book.status]}
+                  </Chip>
+                </div>
+
+                <Divider />
+
+                <div className="space-y-3">
+                  <p className="text-xs font-medium text-default-400 uppercase tracking-wide">Chapter Progress</p>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      size="sm"
+                      variant="bordered"
+                      isIconOnly
+                      onPress={() => handleChapterChange(-1)}
+                      isDisabled={book.current_chapter === 0}
+                      className="rounded-full w-8 h-8 min-w-0"
+                    >
+                      −
+                    </Button>
+                    <div className="text-center">
+                      <span className="text-3xl font-bold text-default-900">{book.current_chapter}</span>
+                      {book.total_chapters && (
+                        <span className="text-default-400 text-sm ml-1">/ {book.total_chapters}</span>
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="bordered"
+                      isIconOnly
+                      onPress={() => handleChapterChange(1)}
+                      isDisabled={book.total_chapters ? book.current_chapter >= book.total_chapters : false}
+                      className="rounded-full w-8 h-8 min-w-0"
+                    >
+                      +
+                    </Button>
+                  </div>
+                  {progress !== null && (
+                    <div className="space-y-1">
+                      <Progress value={progress} color={STATUS_COLOR[book.status]} aria-label="Reading progress" showValueLabel size="sm" />
+                    </div>
+                  )}
+                </div>
+
+                {book.notes && (
+                  <>
+                    <Divider />
+                    <div>
+                      <p className="text-xs font-medium text-default-400 uppercase tracking-wide mb-1">Notes</p>
+                      <p className="text-sm text-default-700 whitespace-pre-wrap leading-relaxed">{book.notes}</p>
+                    </div>
+                  </>
+                )}
+
+                <Divider />
+
+                <div className="flex items-center justify-between pt-1">
+                  <Button color="danger" variant="light" size="sm" isLoading={deleting} onPress={handleDelete}>
+                    Delete
+                  </Button>
+                  <Button color="secondary" size="sm" onPress={() => setEditing(true)}>
+                    Edit Book
+                  </Button>
+                </div>
+              </div>
+            </div>
           )}
         </CardBody>
       </Card>
