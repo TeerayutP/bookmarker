@@ -4,6 +4,7 @@ import { Input, Select, SelectItem, Textarea, Button, Card, CardBody, Autocomple
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { createBook, BookStatus } from './booksSlice'
 import { resolveImg } from '../../lib/imageUrl'
+import { useCoverUpload } from '../../lib/useCoverUpload'
 import { fetchAuthors } from '../authors/authorsSlice'
 import { fetchCategories } from '../categories/categoriesSlice'
 
@@ -29,6 +30,7 @@ export default function AddBookPage() {
   const [coverUrl, setCoverUrl] = useState('')
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
+  const { open: openFilePicker, uploading, Input: FileInput } = useCoverUpload(setCoverUrl)
 
   useEffect(() => {
     dispatch(fetchAuthors())
@@ -148,13 +150,19 @@ export default function AddBookPage() {
                   {STATUS_OPTIONS.map(o => <SelectItem key={o.key}>{o.label}</SelectItem>)}
                 </Select>
 
-                <Input
-                  label="Cover URL"
-                  value={coverUrl}
-                  onValueChange={setCoverUrl}
-                  placeholder="https://… (optional)"
-                  variant="bordered"
-                />
+                <div className="space-y-1.5">
+                  <Input
+                    label="Cover URL"
+                    value={coverUrl}
+                    onValueChange={setCoverUrl}
+                    placeholder="https://… (optional)"
+                    variant="bordered"
+                  />
+                  <FileInput />
+                  <Button size="sm" variant="flat" color="secondary" onPress={openFilePicker} isLoading={uploading} className="w-full">
+                    {uploading ? 'Uploading…' : '📁 Upload image file'}
+                  </Button>
+                </div>
 
                 <Textarea
                   label="Notes"

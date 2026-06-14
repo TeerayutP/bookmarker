@@ -4,6 +4,7 @@ import { Input, Select, SelectItem, Textarea, Button, Card, CardBody, Progress, 
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { fetchBooks, updateBook, patchChapter, deleteBook, BookStatus } from './booksSlice'
 import { resolveImg } from '../../lib/imageUrl'
+import { useCoverUpload } from '../../lib/useCoverUpload'
 import { fetchCategories } from '../categories/categoriesSlice'
 import { fetchAuthors } from '../authors/authorsSlice'
 
@@ -60,6 +61,7 @@ export default function BookDetailPage() {
   const [categoryInput, setCategoryInput] = useState('')
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const { open: openFilePicker, uploading, Input: FileInput } = useCoverUpload(setCoverUrl)
 
   useEffect(() => {
     if (!book) dispatch(fetchBooks())
@@ -135,7 +137,13 @@ export default function BookDetailPage() {
                   <AutocompleteItem key={c.name}>{c.name}</AutocompleteItem>
                 ))}
               </Autocomplete>
-              <Input label="Cover URL" value={coverUrl} onValueChange={setCoverUrl} placeholder="optional" variant="bordered" />
+              <div className="space-y-1.5">
+                <Input label="Cover URL" value={coverUrl} onValueChange={setCoverUrl} placeholder="optional" variant="bordered" />
+                <FileInput />
+                <Button size="sm" variant="flat" color="secondary" onPress={openFilePicker} isLoading={uploading} fullWidth>
+                  {uploading ? 'Uploading…' : '📁 Upload image file'}
+                </Button>
+              </div>
               {resolveImg(coverUrl) && (
                 <div className="aspect-[3/4] w-24 rounded-lg overflow-hidden border border-default-200">
                   <img src={resolveImg(coverUrl)!} alt="preview" className="w-full h-full object-cover" />
