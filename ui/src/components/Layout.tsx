@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Button } from '@heroui/react'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
@@ -15,6 +16,18 @@ export default function Layout() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const user = useAppSelector((s) => s.auth.user)
+  const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark')
+
+  useEffect(() => {
+    if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark')
+  }, [])
+
+  const toggleDark = () => {
+    const next = !dark
+    setDark(next)
+    document.documentElement.classList.toggle('dark', next)
+    localStorage.setItem('theme', next ? 'dark' : 'light')
+  }
 
   const handleLogout = () => {
     dispatch(logout())
@@ -44,6 +57,11 @@ export default function Layout() {
         </NavbarContent>
 
         <NavbarContent justify="end" className="gap-2">
+          <NavbarItem>
+            <Button size="sm" variant="light" isIconOnly onPress={toggleDark} aria-label="Toggle dark mode">
+              {dark ? '☀️' : '🌙'}
+            </Button>
+          </NavbarItem>
           {user && (
             <>
               <NavbarItem className="hidden sm:flex">
@@ -78,6 +96,13 @@ export default function Layout() {
               <span className="text-[10px] font-medium">{link.label}</span>
             </Link>
           ))}
+          <button
+            onClick={toggleDark}
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 text-default-400"
+          >
+            <span className="text-lg leading-none">{dark ? '☀️' : '🌙'}</span>
+            <span className="text-[10px] font-medium">{dark ? 'Light' : 'Dark'}</span>
+          </button>
           <button
             onClick={handleLogout}
             className="flex-1 flex flex-col items-center justify-center gap-0.5 text-danger"

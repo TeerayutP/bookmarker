@@ -1,6 +1,9 @@
+import csv
+import io
 import os
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from ..crud import book as crud, author as author_crud, category as category_crud
 from ..schemas.book import BookCreate, BookUpdate, ChapterPatch, BookOut
@@ -44,13 +47,35 @@ async def upload_cover(file: UploadFile = File(...)):
 
 
 @router.get("", response_model=list[BookOut])
-def list_books(status: BookStatus | None = None, db: Session = Depends(get_db)):
-    return crud.get_all(db, status)
+def list_books(
+    status: BookStatus | None = None,
+    skip: int = 0,
+    limit: int = 20,
+    sort: str = "updated_at_desc",
+    db: Session = Depends(get_db),
+):
+    return crud.get_all(db, status, skip, limit, sort)
 
 
 @router.post("", response_model=BookOut, status_code=201)
 def create_book(data: BookCreate, db: Session = Depends(get_db)):
     return crud.create(db, _resolve(db, data))
+
+
+@router.get("/export")
+def export_books(db: Session = Depends(get_db)):
+    books = crud.get_all(db, limit=10000)
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["id", "title", "author", "status", "current_chapter", "total_chapters", "category_id", "notes", "created_at", "updated_at"])
+    for b in books:
+        writer.writerow([b.id, b.title, b.author, b.status.value, b.current_chapter, b.total_chapters, b.category_id, b.notes, b.created_at, b.updated_at])
+    output.seek(0)
+    return StreamingResponse(
+        output,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=\"books.csv\""},
+    )
 
 
 @router.get("/{book_id}", response_model=BookOut)

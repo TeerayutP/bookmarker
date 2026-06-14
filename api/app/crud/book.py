@@ -3,11 +3,26 @@ from sqlalchemy.orm import Session
 from ..models.book import Book, BookStatus
 from ..schemas.book import BookCreate, BookUpdate
 
-def get_all(db: Session, status: BookStatus | None = None) -> list[Book]:
+_SORT_MAP = {
+    "title_asc": Book.title.asc(),
+    "title_desc": Book.title.desc(),
+    "updated_at_desc": Book.updated_at.desc(),
+    "updated_at_asc": Book.updated_at.asc(),
+    "created_at_desc": Book.created_at.desc(),
+}
+
+def get_all(
+    db: Session,
+    status: BookStatus | None = None,
+    skip: int = 0,
+    limit: int = 20,
+    sort: str = "updated_at_desc",
+) -> list[Book]:
     q = db.query(Book)
     if status:
         q = q.filter(Book.status == status)
-    return q.order_by(Book.updated_at.desc()).all()
+    order = _SORT_MAP.get(sort, Book.updated_at.desc())
+    return q.order_by(order).offset(skip).limit(limit).all()
 
 def get(db: Session, book_id: int) -> Book | None:
     return db.query(Book).filter(Book.id == book_id).first()

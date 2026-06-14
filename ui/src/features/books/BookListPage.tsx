@@ -6,6 +6,7 @@ import { fetchBooks, setFilter, setCategoryFilter, BookStatus } from './booksSli
 import { fetchAuthors } from '../authors/authorsSlice'
 import { fetchCategories } from '../categories/categoriesSlice'
 import { resolveImg } from '../../lib/imageUrl'
+import api from '../../lib/apiClient'
 
 const STATUS_TABS: { key: BookStatus | 'all'; label: string }[] = [
   { key: 'all', label: 'All' },
@@ -30,6 +31,14 @@ const STATUS_LABEL: Record<BookStatus, string> = {
 }
 
 type ViewMode = 'grid' | 'list'
+type SortKey = 'updated_at_desc' | 'title_asc' | 'title_desc' | 'progress_desc'
+
+const SORT_OPTIONS: { key: SortKey; label: string }[] = [
+  { key: 'updated_at_desc', label: 'Recently updated' },
+  { key: 'title_asc', label: 'Title A–Z' },
+  { key: 'title_desc', label: 'Title Z–A' },
+  { key: 'progress_desc', label: 'Progress % ↓' },
+]
 
 function CoverPlaceholder({ title, size = 'lg' }: { title: string; size?: 'sm' | 'lg' }) {
   const colors = [
@@ -72,10 +81,22 @@ export default function BookListPage() {
   const [view, setView] = useState<ViewMode>(() =>
     (localStorage.getItem('bookListView') as ViewMode) ?? 'grid'
   )
+  const [sort, setSort] = useState<SortKey>('updated_at_desc')
+  const [displayLimit, setDisplayLimit] = useState(20)
 
   const setViewMode = (v: ViewMode) => {
     setView(v)
     localStorage.setItem('bookListView', v)
+  }
+
+  const downloadCsv = async () => {
+    const res = await api.get('/books/export', { responseType: 'blob' })
+    const url = URL.createObjectURL(res.data)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'books.csv'
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   useEffect(() => {
@@ -84,15 +105,26 @@ export default function BookListPage() {
     dispatch(fetchCategories())
   }, [dispatch])
 
-  const visible = useMemo(() =>
-    items
+  useEffect(() => {
+    setDisplayLimit(20)
+  }, [filter, categoryFilter, sort, search])
+
+  const visible = useMemo(() => {
+    const sorted = items
       .filter(b => filter === 'all' || b.status === filter)
       .filter(b => categoryFilter === null || b.category_id === categoryFilter)
       .filter(b => search === '' ||
         b.title.toLowerCase().includes(search.toLowerCase()) ||
-        b.author.toLowerCase().includes(search.toLowerCase())),
-    [items, filter, categoryFilter, search],
-  )
+        b.author.toLowerCase().includes(search.toLowerCase()))
+    if (sort === 'title_asc') sorted.sort((a, b) => a.title.localeCompare(b.title))
+    else if (sort === 'title_desc') sorted.sort((a, b) => b.title.localeCompare(a.title))
+    else if (sort === 'progress_desc') sorted.sort((a, b) => {
+      const pA = a.total_chapters ? a.current_chapter / a.total_chapters : 0
+      const pB = b.total_chapters ? b.current_chapter / b.total_chapters : 0
+      return pB - pA
+    })
+    return sorted
+  }, [items, filter, categoryFilter, search, sort])
 
   const readingCount = items.filter(b => b.status === 'reading').length
   const completedCount = items.filter(b => b.status === 'completed').length
@@ -148,6 +180,17 @@ export default function BookListPage() {
             ))}
           </Select>
 
+          <Select
+            selectedKeys={[sort]}
+            onSelectionChange={k => setSort([...k][0] as SortKey)}
+            aria-label="Sort by"
+            variant="bordered"
+            size="sm"
+            className="flex-1 min-w-0"
+          >
+            {SORT_OPTIONS.map(o => <SelectItem key={o.key}>{o.label}</SelectItem>)}
+          </Select>
+
           {categoryFilter !== null && (
             <Button size="sm" variant="light" onPress={() => dispatch(setCategoryFilter(null))} className="text-default-400 shrink-0 px-2 min-w-0">
               ✕
@@ -197,6 +240,9 @@ export default function BookListPage() {
             </Button>
           </ButtonGroup>
 
+          <Button size="sm" variant="flat" onPress={downloadCsv} className="shrink-0">
+            Export CSV
+          </Button>
           <Button as={Link} to="/books/new" color="secondary" variant="flat" size="sm" className="shrink-0">
             + Add
           </Button>
@@ -211,7 +257,7 @@ export default function BookListPage() {
         </div>
       ) : view === 'grid' ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {visible.map(book => (
+          {visible.slice(0, displayLimit).map(book => (
             <Link key={book.id} to={`/books/${book.id}`} className="group block">
               <Card isPressable isBlurred className="h-full w-full border border-white/40 shadow-sm group-hover:shadow-md transition-shadow">
                 <CardBody className="p-0 overflow-hidden w-full">
@@ -256,7 +302,7 @@ export default function BookListPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {visible.map(book => {
+          {visible.slice(0, displayLimit).map(book => {
             const progress = book.total_chapters
               ? Math.round((book.current_chapter / book.total_chapters) * 100)
               : null
@@ -328,9 +374,20 @@ export default function BookListPage() {
       )}
 
       {visible.length > 0 && (
-        <p className="text-xs text-default-300 text-right">
-          {visible.length} book{visible.length !== 1 ? 's' : ''}
-        </p>
+        <div className="flex flex-col items-center gap-3">
+          {visible.length > displayLimit && (
+            <Button
+              size="sm"
+              variant="flat"
+              onPress={() => setDisplayLimit(prev => prev + 20)}
+            >
+              Load more
+            </Button>
+          )}
+          <p className="text-xs text-default-300">
+            Showing {Math.min(displayLimit, visible.length)} of {visible.length} book{visible.length !== 1 ? 's' : ''}
+          </p>
+        </div>
       )}
     </div>
   )

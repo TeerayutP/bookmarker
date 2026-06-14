@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { Input, Select, SelectItem, Textarea, Button, Card, CardBody, Progress, Chip, Divider, Autocomplete, AutocompleteItem } from '@heroui/react'
+import { Input, Select, SelectItem, Textarea, Button, Card, CardBody, Progress, Chip, Divider, Autocomplete, AutocompleteItem, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@heroui/react'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { fetchBooks, updateBook, patchChapter, deleteBook, BookStatus } from './booksSlice'
 import { resolveImg } from '../../lib/imageUrl'
@@ -61,6 +61,7 @@ export default function BookDetailPage() {
   const [categoryInput, setCategoryInput] = useState('')
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const { open: openFilePicker, uploading, Input: FileInput } = useCoverUpload(setCoverUrl)
 
   useEffect(() => {
@@ -243,7 +244,7 @@ export default function BookDetailPage() {
                 <Divider />
 
                 <div className="flex items-center justify-between pt-1">
-                  <Button color="danger" variant="light" size="sm" isLoading={deleting} onPress={handleDelete}>
+                  <Button color="danger" variant="light" size="sm" onPress={() => setConfirmOpen(true)}>
                     Delete
                   </Button>
                   <Button color="secondary" size="sm" onPress={() => setEditing(true)}>
@@ -255,6 +256,19 @@ export default function BookDetailPage() {
           )}
         </CardBody>
       </Card>
+
+      <Modal isOpen={confirmOpen} onClose={() => setConfirmOpen(false)}>
+        <ModalContent>
+          <ModalHeader>Delete book?</ModalHeader>
+          <ModalBody>
+            <p className="text-sm text-default-600">This cannot be undone.</p>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="flat" onPress={() => setConfirmOpen(false)}>Cancel</Button>
+            <Button color="danger" isLoading={deleting} onPress={handleDelete}>Delete</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   )
 }

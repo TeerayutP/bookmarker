@@ -143,19 +143,19 @@ UI: http://localhost:5173 | API docs: http://localhost:8000/docs
 - [ ] Document all env vars in README
 - [ ] Add `CONTRIBUTING.md` (brief — just shows awareness)
 
-### Phase 7 — Dashboard & Statistics
+### Phase 7 — Dashboard & Statistics ✅
 
 **Goal:** Visually impressive page that showcases end-to-end data wiring.
 
-- [ ] Add `GET /stats` endpoint returning: total books by status, books added per month (last 6 months), average chapters per book, top categories
-- [ ] Add `statsSlice` in Redux with async thunk calling `/stats`
-- [ ] Install `recharts` in the UI
-- [ ] Build `/dashboard` page with:
-  - [ ] Summary cards — total books, currently reading, completed this year
-  - [ ] Donut chart — books by status
-  - [ ] Bar chart — books added per month (last 6 months)
-  - [ ] Progress toward reading goal (hardcoded or user-set)
-- [ ] Add Dashboard link to nav (desktop sidebar + mobile bottom nav)
+- [x] Add `GET /stats` endpoint returning: total books by status, books added per month (last 6 months), average chapters per book, top categories
+- [x] Add `statsSlice` in Redux with async thunk calling `/stats`
+- [x] Install `recharts` in the UI
+- [x] Build `/dashboard` page with:
+  - [x] Summary cards — total books, currently reading, completed this year
+  - [x] Donut chart — books by status
+  - [x] Bar chart — books added per month (last 6 months)
+  - [x] Progress toward reading goal (hardcoded or user-set)
+- [x] Add Dashboard link to nav (desktop sidebar + mobile bottom nav)
 
 ### Phase 8 — Reading Goals
 
@@ -188,12 +188,12 @@ UI: http://localhost:5173 | API docs: http://localhost:8000/docs
 - [ ] Categories & authors tests: CRUD happy paths
 - [ ] Run tests in CI — add `.github/workflows/test.yml` running `pytest` on push
 
-### Phase 11 — UX Polish
+### Phase 11 — UX Polish ✅
 
 **Goal:** Small touches that make the app feel production-quality.
 
-- [ ] Pagination or infinite scroll on the book list (backend: add `skip`/`limit` query params; frontend: "Load more" button)
-- [ ] Sorting on book list — by title A–Z, recently updated, reading progress %
-- [ ] Dark mode toggle using HeroUI v2 `ThemeProvider` — persist choice in `localStorage`
-- [ ] CSV export — `GET /books/export` returns CSV; frontend has a download button on the book list
-- [ ] Confirm dialog before deleting a book (currently fires immediately)
+- [x] Pagination or infinite scroll on the book list (backend: add `skip`/`limit` query params; frontend: "Load more" button)
+- [x] Sorting on book list — by title A–Z, recently updated, reading progress %
+- [x] Dark mode toggle using HeroUI v2 `ThemeProvider` — persist choice in `localStorage`
+- [x] CSV export — `GET /books/export` returns CSV; frontend has a download button on the book list
+- [x] Confirm dialog before deleting a book (currently fires immediately)
