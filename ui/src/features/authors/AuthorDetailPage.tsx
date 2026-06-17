@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { Card, CardBody, Input, Textarea, Button, Chip, Divider, Progress } from '@heroui/react'
+import { Card, CardBody, Input, Textarea, Button, Chip, Progress } from '@heroui/react'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { fetchAuthors, updateAuthor, deleteAuthor } from './authorsSlice'
 import { fetchBooks } from '../books/booksSlice'

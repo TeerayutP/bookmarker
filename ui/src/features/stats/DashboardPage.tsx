@@ -107,7 +107,7 @@ export default function DashboardPage() {
                     <Cell key={entry.key} fill={STATUS_COLORS[entry.key] ?? '#94a3b8'} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: number, name: string) => [value, name]} />
+                <Tooltip formatter={(value, name) => [value, name]} />
               </PieChart>
             </ResponsiveContainer>
             <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
