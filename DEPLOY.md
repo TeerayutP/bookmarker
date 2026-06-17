@@ -4,6 +4,14 @@
 > **Target:** Railway (API + DB) · Vercel (UI)  
 > **Est. time:** ~30 min on first deploy, ~5 min for subsequent pushes
 
+## Live URLs
+
+| Service | URL |
+|---|---|
+| **UI (Vercel)** | https://bookmarker-dun-three.vercel.app |
+| **API (Railway)** | https://api-production-6444.up.railway.app |
+| **API Docs** | https://api-production-6444.up.railway.app/docs |
+
 ---
 
 ## Overview
