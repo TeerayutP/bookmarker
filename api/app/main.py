@@ -6,7 +6,7 @@ load_dotenv()  # no-op in production where env vars are injected directly
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from .routers import books, authors, categories, reviews, auth, stats
+from .routers import books, authors, categories, reviews, auth, stats, library
 
 app = FastAPI(title="Bookmarker API")
 
@@ -26,6 +26,7 @@ app.mount("/static", StaticFiles(directory="uploads"), name="static")
 
 app.include_router(auth.router)
 app.include_router(books.router)
+app.include_router(library.router)
 app.include_router(authors.router)
 app.include_router(categories.router)
 app.include_router(reviews.router)

@@ -5,7 +5,8 @@ import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { logout } from '../features/auth/authSlice'
 
 const NAV_LINKS = [
-  { to: '/', label: 'Books', emoji: '📚', match: (p: string) => p === '/' || p.startsWith('/books') },
+  { to: '/', label: 'My List', emoji: '📚', match: (p: string) => p === '/' || p.startsWith('/books') },
+  { to: '/library', label: 'Library', emoji: '🏛️', match: (p: string) => p.startsWith('/library') },
   { to: '/authors', label: 'Authors', emoji: '✍️', match: (p: string) => p.startsWith('/authors') },
   { to: '/categories', label: 'Categories', emoji: '🏷️', match: (p: string) => p.startsWith('/categories') },
   { to: '/dashboard', label: 'Dashboard', emoji: '📊', match: (p: string) => p.startsWith('/dashboard') },

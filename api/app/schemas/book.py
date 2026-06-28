@@ -1,46 +1,4 @@
-from datetime import datetime
-from pydantic import BaseModel
-from ..models.book import BookStatus
+# Kept for any legacy imports — new code uses schemas/user_book.py and schemas/library_book.py
+from .user_book import UserBookCreate as BookCreate, UserBookUpdate as BookUpdate, ChapterPatch, UserBookOut as BookOut
 
-class BookCreate(BaseModel):
-    title: str
-    author: str
-    total_chapters: int | None = None
-    current_chapter: int = 0
-    status: BookStatus = BookStatus.reading
-    cover_url: str | None = None
-    notes: str | None = None
-    synopsis: str | None = None
-    category_id: int | None = None
-    category_name: str | None = None
-
-class BookUpdate(BaseModel):
-    title: str | None = None
-    author: str | None = None
-    total_chapters: int | None = None
-    current_chapter: int | None = None
-    status: BookStatus | None = None
-    cover_url: str | None = None
-    notes: str | None = None
-    synopsis: str | None = None
-    category_id: int | None = None
-    category_name: str | None = None
-
-class ChapterPatch(BaseModel):
-    current_chapter: int
-
-class BookOut(BaseModel):
-    id: int
-    title: str
-    author: str
-    total_chapters: int | None
-    current_chapter: int
-    status: BookStatus
-    cover_url: str | None
-    notes: str | None
-    synopsis: str | None
-    category_id: int | None
-    created_at: datetime
-    updated_at: datetime
-
-    model_config = {"from_attributes": True}
+__all__ = ["BookCreate", "BookUpdate", "ChapterPatch", "BookOut"]
