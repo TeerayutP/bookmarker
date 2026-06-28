@@ -19,8 +19,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault()
-    const result = await dispatch(login({ username, password }))
-    if (login.fulfilled.match(result)) navigate('/')
+    await dispatch(login({ username, password }))
   }
 
   return (
