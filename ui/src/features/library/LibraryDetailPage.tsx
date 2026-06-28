@@ -5,7 +5,6 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { fetchLibraryBook, updateLibraryBook } from './librarySlice'
 import { addToReadingList } from '../books/booksSlice'
 import { fetchCategories } from '../categories/categoriesSlice'
-import { fetchAuthors } from '../authors/authorsSlice'
 import { resolveImg } from '../../lib/imageUrl'
 import { useCoverUpload } from '../../lib/useCoverUpload'
 
@@ -35,7 +34,6 @@ export default function LibraryDetailPage() {
   const book = useAppSelector(s => s.library.items.find(b => b.id === Number(id)))
   const myBookIds = useAppSelector(s => new Set(s.books.items.map(b => b.book_id)))
   const categories = useAppSelector(s => s.categories.items)
-  const authors = useAppSelector(s => s.authors.items)
 
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState('')
@@ -52,7 +50,6 @@ export default function LibraryDetailPage() {
   useEffect(() => {
     if (!book) dispatch(fetchLibraryBook(Number(id)))
     dispatch(fetchCategories())
-    dispatch(fetchAuthors())
   }, [])
 
   useEffect(() => {
