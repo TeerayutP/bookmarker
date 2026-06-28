@@ -17,8 +17,8 @@ export default function LoginPage() {
     return () => { dispatch(clearError()) }
   }, [token])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault()
     const result = await dispatch(login({ username, password }))
     if (login.fulfilled.match(result)) navigate('/')
   }
@@ -48,7 +48,7 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <Input label="Username" value={username} onValueChange={setUsername} variant="bordered" isRequired autoComplete="username" />
               <Input label="Password" type="password" value={password} onValueChange={setPassword} variant="bordered" isRequired autoComplete="current-password" />
-              <Button type="submit" color="secondary" isLoading={loading} fullWidth className="mt-1 font-semibold">
+              <Button type="submit" color="secondary" isLoading={loading} fullWidth className="mt-1 font-semibold" onPress={() => handleSubmit()}>
                 Sign in
               </Button>
             </form>
