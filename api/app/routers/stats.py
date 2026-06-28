@@ -5,7 +5,9 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..core.security import get_current_user
-from ..models.book import Book, BookStatus
+from ..models.user import User
+from ..models.user_book import UserBook, BookStatus
+from ..models.library_book import LibraryBook
 from ..models.category import Category
 from ..schemas.stats import StatsOut, MonthCount, CategoryCount
 
@@ -20,12 +22,18 @@ def _month_offset(d: date, months: int) -> date:
 
 
 @router.get("", response_model=StatsOut)
-def get_stats(db: Session = Depends(get_db)):
-    total = db.query(func.count(Book.id)).scalar() or 0
+def get_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    uid = current_user.id
+
+    total = db.query(func.count(UserBook.id)).filter(UserBook.user_id == uid).scalar() or 0
 
     status_rows = (
-        db.query(Book.status, func.count(Book.id))
-        .group_by(Book.status)
+        db.query(UserBook.status, func.count(UserBook.id))
+        .filter(UserBook.user_id == uid)
+        .group_by(UserBook.status)
         .all()
     )
     by_status = {s.value: 0 for s in BookStatus}
@@ -34,9 +42,10 @@ def get_stats(db: Session = Depends(get_db)):
 
     month_rows = (
         db.query(
-            func.date_format(Book.created_at, "%Y-%m").label("month"),
-            func.count(Book.id).label("count"),
+            func.date_format(UserBook.added_at, "%Y-%m").label("month"),
+            func.count(UserBook.id).label("count"),
         )
+        .filter(UserBook.user_id == uid)
         .group_by("month")
         .all()
     )
@@ -51,25 +60,33 @@ def get_stats(db: Session = Depends(get_db)):
         for i in range(5, -1, -1)
     ]
 
-    avg_chapters = db.query(func.avg(Book.total_chapters)).filter(Book.total_chapters.isnot(None)).scalar()
+    avg_chapters = (
+        db.query(func.avg(LibraryBook.total_chapters))
+        .join(UserBook, UserBook.book_id == LibraryBook.id)
+        .filter(UserBook.user_id == uid, LibraryBook.total_chapters.isnot(None))
+        .scalar()
+    )
     if avg_chapters is not None:
         avg_chapters = float(avg_chapters)
 
     top_categories = (
-        db.query(Category.name, func.count(Book.id).label("count"))
-        .join(Book, Book.category_id == Category.id)
+        db.query(Category.name, func.count(UserBook.id).label("count"))
+        .join(LibraryBook, LibraryBook.category_id == Category.id)
+        .join(UserBook, UserBook.book_id == LibraryBook.id)
+        .filter(UserBook.user_id == uid)
         .group_by(Category.id, Category.name)
-        .order_by(func.count(Book.id).desc())
+        .order_by(func.count(UserBook.id).desc())
         .limit(5)
         .all()
     )
 
     current_year = datetime.utcnow().year
     completed_this_year = (
-        db.query(func.count(Book.id))
+        db.query(func.count(UserBook.id))
         .filter(
-            Book.status == BookStatus.completed,
-            func.year(Book.created_at) == current_year,
+            UserBook.user_id == uid,
+            UserBook.status == BookStatus.completed,
+            func.year(UserBook.added_at) == current_year,
         )
         .scalar()
         or 0

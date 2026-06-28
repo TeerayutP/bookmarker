@@ -12,6 +12,9 @@ import CategoryFormPage from '../features/categories/CategoryFormPage'
 import LoginPage from '../features/auth/LoginPage'
 import RegisterPage from '../features/auth/RegisterPage'
 import DashboardPage from '../features/stats/DashboardPage'
+import LibraryPage from '../features/library/LibraryPage'
+import LibraryNewPage from '../features/library/LibraryNewPage'
+import LibraryDetailPage from '../features/library/LibraryDetailPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -27,6 +30,9 @@ export const router = createBrowserRouter([
       { index: true, element: <BookListPage /> },
       { path: 'books/new', element: <AddBookPage /> },
       { path: 'books/:id', element: <BookDetailPage /> },
+      { path: 'library', element: <LibraryPage /> },
+      { path: 'library/new', element: <LibraryNewPage /> },
+      { path: 'library/:id', element: <LibraryDetailPage /> },
       { path: 'authors', element: <AuthorListPage /> },
       { path: 'authors/new', element: <AuthorFormPage /> },
       { path: 'authors/:id', element: <AuthorDetailPage /> },

@@ -59,6 +59,7 @@ export default function BookDetailPage() {
   const [coverUrl, setCoverUrl] = useState('')
   const [synopsis, setSynopsis] = useState('')
   const [notes, setNotes] = useState('')
+  const [rating, setRating] = useState<number | null>(null)
   const [categoryInput, setCategoryInput] = useState('')
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -80,6 +81,7 @@ export default function BookDetailPage() {
       setCoverUrl(book.cover_url ?? '')
       setSynopsis(book.synopsis ?? '')
       setNotes(book.notes ?? '')
+      setRating(book.rating ?? null)
       const cat = categories.find(c => c.id === book.category_id)
       setCategoryInput(cat?.name ?? '')
     }
@@ -92,7 +94,7 @@ export default function BookDetailPage() {
     try {
       await dispatch(updateBook({
         id: book.id,
-        data: { title, author, total_chapters: totalChapters ? Number(totalChapters) : null, status, cover_url: coverUrl || null, synopsis: synopsis || null, notes: notes || null, category_name: categoryInput || null },
+        data: { title, author, total_chapters: totalChapters ? Number(totalChapters) : null, status, cover_url: coverUrl || null, synopsis: synopsis || null, notes: notes || null, rating: rating ?? null, category_name: categoryInput || null },
       })).unwrap()
       setEditing(false)
     } finally { setSaving(false) }
@@ -110,9 +112,14 @@ export default function BookDetailPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <Button variant="light" size="sm" className="mb-4 text-default-500" onPress={() => navigate('/')}>
-        ← Back to library
-      </Button>
+      <div className="flex items-center justify-between mb-4">
+        <Button variant="light" size="sm" className="text-default-500" onPress={() => navigate('/')}>
+          ← Back to My List
+        </Button>
+        <Button as={Link} to={`/library/${book.book_id}`} variant="light" size="sm" className="text-default-500">
+          View in Library →
+        </Button>
+      </div>
 
       <Card isBlurred className="border border-white/40 shadow-lg overflow-visible">
         <CardBody className="p-0">
@@ -125,6 +132,15 @@ export default function BookDetailPage() {
                 <Input label="Total Chapters" type="number" min={1} value={totalChapters} onValueChange={setTotalChapters} placeholder="optional" variant="bordered" />
                 <Select label="Status" selectedKeys={[status]} onSelectionChange={k => setStatus([...k][0] as BookStatus)} variant="bordered">
                   {STATUS_OPTIONS.map(o => <SelectItem key={o.key}>{o.label}</SelectItem>)}
+                </Select>
+                <Select
+                  label="Rating"
+                  placeholder="No rating"
+                  selectedKeys={rating !== null ? [String(rating)] : []}
+                  onSelectionChange={k => { const v = [...k][0]; setRating(v != null ? Number(v) : null) }}
+                  variant="bordered"
+                >
+                  {[1, 2, 3, 4, 5].map(n => <SelectItem key={String(n)}>{'★'.repeat(n) + '☆'.repeat(5 - n)}</SelectItem>)}
                 </Select>
               </div>
               <Autocomplete
@@ -228,10 +244,21 @@ export default function BookDetailPage() {
                     >
                       −
                     </Button>
-                    <div className="text-center">
-                      <span className="text-3xl font-bold text-default-900">{book.current_chapter}</span>
+                    <div className="flex items-baseline gap-1 ">
+                      <input
+                        type="number"
+                        min={0}
+                        max={book.total_chapters ?? undefined}
+                        value={book.current_chapter}
+                        onChange={e => {
+                          const v = parseInt(e.target.value, 10)
+                          if (!isNaN(v) && v >= 0) dispatch(patchChapter({ id: book.id, chapter: v }))
+                        }}
+                        onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
+                        className="w-[6rem] text-center text-3xl font-bold text-default-900 bg-transparent border-b-2 border-default-200 focus:border-violet-500 outline-none"
+                      />
                       {book.total_chapters && (
-                        <span className="text-default-400 text-sm ml-1">/ {book.total_chapters}</span>
+                        <span className="text-default-400 text-sm">/ {book.total_chapters}</span>
                       )}
                     </div>
                     <Button
@@ -251,6 +278,19 @@ export default function BookDetailPage() {
                     </div>
                   )}
                 </div>
+
+                {book.rating !== null && (
+                  <>
+                    <Divider />
+                    <div>
+                      <p className="text-xs font-medium text-default-400 uppercase tracking-wide mb-1">Rating</p>
+                      <p className="text-lg tracking-wide">
+                        {'★'.repeat(book.rating)}
+                        <span className="text-default-200">{'★'.repeat(5 - book.rating)}</span>
+                      </p>
+                    </div>
+                  </>
+                )}
 
                 {book.synopsis && (
                   <>

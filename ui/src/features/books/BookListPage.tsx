@@ -243,7 +243,10 @@ export default function BookListPage() {
           <Button size="sm" variant="flat" onPress={downloadCsv} className="shrink-0">
             Export CSV
           </Button>
-          <Button as={Link} to="/books/new" color="secondary" variant="flat" size="sm" className="shrink-0">
+          <Button as={Link} to="/library" variant="flat" size="sm" className="shrink-0">
+            Browse Library
+          </Button>
+          <Button as={Link} to="/library/new" color="secondary" variant="flat" size="sm" className="shrink-0">
             + Add
           </Button>
         </div>

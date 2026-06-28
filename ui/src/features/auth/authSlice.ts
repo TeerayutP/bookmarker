@@ -46,7 +46,9 @@ export const login = createAsyncThunk(
       })
       return { token, user: me.data as User }
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.detail ?? 'Login failed')
+      const status = err.response?.status
+      if (status === 401 || status === 400) return rejectWithValue('Incorrect username or password')
+      return rejectWithValue('Login failed. Please try again.')
     }
   }
 )

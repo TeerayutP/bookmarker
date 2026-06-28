@@ -5,11 +5,13 @@ import categoriesReducer from '../features/categories/categoriesSlice'
 import reviewsReducer from '../features/reviews/reviewsSlice'
 import authReducer from '../features/auth/authSlice'
 import statsReducer from '../features/stats/statsSlice'
+import libraryReducer from '../features/library/librarySlice'
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     books: booksReducer,
+    library: libraryReducer,
     authors: authorsReducer,
     categories: categoriesReducer,
     reviews: reviewsReducer,

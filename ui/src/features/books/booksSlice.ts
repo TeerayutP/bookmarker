@@ -4,7 +4,8 @@ import api from '../../lib/apiClient'
 export type BookStatus = 'reading' | 'completed' | 'on_hold' | 'dropped'
 
 export interface Book {
-  id: number
+  id: number           // user_books.id
+  book_id: number      // library_books.id
   title: string
   author: string
   total_chapters: number | null
@@ -13,25 +14,41 @@ export interface Book {
   cover_url: string | null
   synopsis: string | null
   notes: string | null
+  rating: number | null
   category_id: number | null
-  created_at: string
+  added_at: string
   updated_at: string
 }
 
 export interface BookCreate {
-  title: string
-  author: string
+  // Dual-path: provide book_id to add existing library book, omit to create new
+  book_id?: number
+  title?: string
+  author?: string
   total_chapters?: number | null
   current_chapter?: number
   status?: BookStatus
   cover_url?: string | null
   synopsis?: string | null
   notes?: string | null
+  rating?: number | null
   category_id?: number | null
   category_name?: string | null
 }
 
-export interface BookUpdate extends Partial<BookCreate> {}
+export interface BookUpdate {
+  title?: string | null
+  author?: string | null
+  total_chapters?: number | null
+  current_chapter?: number | null
+  status?: BookStatus | null
+  cover_url?: string | null
+  synopsis?: string | null
+  notes?: string | null
+  rating?: number | null
+  category_id?: number | null
+  category_name?: string | null
+}
 
 interface BooksState {
   items: Book[]
@@ -57,6 +74,11 @@ export const fetchBooks = createAsyncThunk('books/fetchAll', async (status?: Boo
 
 export const createBook = createAsyncThunk('books/create', async (data: BookCreate) => {
   const res = await api.post<Book>('/books', data)
+  return res.data
+})
+
+export const addToReadingList = createAsyncThunk('books/addToList', async (bookId: number) => {
+  const res = await api.post<Book>('/books', { book_id: bookId })
   return res.data
 })
 
@@ -98,6 +120,7 @@ const booksSlice = createSlice({
       .addCase(fetchBooks.fulfilled, (state, action) => { state.loading = false; state.items = action.payload })
       .addCase(fetchBooks.rejected, (state, action) => { state.loading = false; state.error = action.error.message ?? 'Failed' })
       .addCase(createBook.fulfilled, (state, action) => { state.items.unshift(action.payload) })
+      .addCase(addToReadingList.fulfilled, (state, action) => { state.items.unshift(action.payload) })
       .addCase(updateBook.fulfilled, (state, action) => {
         const idx = state.items.findIndex(b => b.id === action.payload.id)
         if (idx !== -1) state.items[idx] = action.payload
