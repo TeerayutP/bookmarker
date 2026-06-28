@@ -13,8 +13,7 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (res) => res,
   (err) => {
-    const url = err.config?.url ?? ''
-    if (err.response?.status === 401 && !url.startsWith('/auth/')) {
+    if (err.response?.status === 401) {
       localStorage.removeItem('access_token')
       window.location.href = '/login'
     }
